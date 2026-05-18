@@ -1,0 +1,2418 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UFO 事件知識管理系統｜Dimension D.</title>
+<link rel="icon" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="UFO EKMS">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Noto+Sans+HK:wght@300;400;500;700&display=swap');
+
+:root {
+  --bg: #04070f;
+  --panel: #080e1c;
+  --panel2: #0c1428;
+  --border: #152040;
+  --border2: #1e3060;
+  --accent: #00c8ff;
+  --accent2: #ff4060;
+  --accent3: #40ffaa;
+  --gold: #ffb830;
+  --purple: #b060ff;
+  --text: #b8cce0;
+  --text2: #7090b0;
+  --white: #e8f0ff;
+  --glow: 0 0 20px rgba(0,200,255,0.35);
+  --glow2: 0 0 20px rgba(255,64,96,0.35);
+  --glow3: 0 0 20px rgba(64,255,170,0.35);
+  --nav-h: 60px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: 'Noto Sans HK', sans-serif; min-height: 100vh; overflow-x: hidden; }
+
+/* ── Stars bg ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    radial-gradient(1px 1px at 8% 12%, rgba(255,255,255,.55) 0%,transparent 100%),
+    radial-gradient(1px 1px at 22% 45%, rgba(255,255,255,.35) 0%,transparent 100%),
+    radial-gradient(1px 1px at 48% 8%, rgba(255,255,255,.45) 0%,transparent 100%),
+    radial-gradient(1px 1px at 73% 58%, rgba(255,255,255,.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 91% 28%, rgba(255,255,255,.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 33% 78%, rgba(255,255,255,.35) 0%,transparent 100%),
+    radial-gradient(1px 1px at 62% 88%, rgba(255,255,255,.25) 0%,transparent 100%),
+    radial-gradient(2px 2px at 82% 18%, rgba(0,200,255,.35) 0%,transparent 100%),
+    radial-gradient(2px 2px at 14% 92%, rgba(0,200,255,.25) 0%,transparent 100%),
+    radial-gradient(1px 1px at 55% 35%, rgba(176,96,255,.3) 0%,transparent 100%);
+}
+
+/* ── Navigation ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h);
+  background: rgba(4,7,15,.96); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; z-index: 1000;
+}
+.nav-brand {
+  font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 4px;
+  color: var(--accent); text-transform: uppercase;
+}
+.nav-tabs { display: flex; gap: 4px; }
+.nav-tab {
+  font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 2px;
+  padding: 7px 16px; border: 1px solid var(--border);
+  background: transparent; color: var(--text2);
+  cursor: pointer; border-radius: 2px; transition: all .2s;
+  text-transform: uppercase;
+}
+.nav-tab:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,200,255,.06); }
+.nav-tab.active { border-color: var(--accent); color: var(--accent); background: rgba(0,200,255,.1); box-shadow: var(--glow); font-weight: 600; }
+
+/* ── Pages ── */
+.page { display: none; min-height: 100vh; padding-top: var(--nav-h); position: relative; z-index: 1; }
+.page.active { display: block; }
+
+/* ── Page Header ── */
+.page-header {
+  text-align: center; padding: 48px 20px 36px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(0,200,255,.04) 0%, transparent 100%);
+}
+.page-header .eyebrow { font-family:'Orbitron',monospace; font-size:10px; letter-spacing:5px; color:var(--accent); text-transform:uppercase; margin-bottom:12px; opacity:.8; }
+.page-header h1 { font-family:'Orbitron',monospace; font-size:clamp(20px,3.5vw,36px); font-weight:900; color:var(--white); text-shadow:var(--glow); margin-bottom:10px; }
+.page-header p { font-size:13px; color:var(--text2); max-width:560px; margin:0 auto; line-height:1.7; }
+
+/* ── Filter Bar ── */
+.filter-bar {
+  position: sticky; top: var(--nav-h); z-index: 50;
+  background: rgba(4,7,15,.96); backdrop-filter:blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 20px; display:flex; gap:6px; flex-wrap:wrap; justify-content:center;
+}
+.filter-btn {
+  font-family:'Orbitron',monospace; font-size:9px; letter-spacing:2px;
+  padding:5px 12px; border:1px solid var(--border); background:transparent;
+  color:var(--text2); cursor:pointer; border-radius:2px; transition:all .2s; text-transform:uppercase;
+}
+.filter-btn:hover,.filter-btn.active { border-color:var(--accent); color:var(--accent); background:rgba(0,200,255,.07); box-shadow:var(--glow); }
+.filter-btn.active { font-weight:700; }
+
+/* ══════════════════════════════
+   PAGE 1 — MAIN TIMELINE
+══════════════════════════════ */
+.timeline-wrap { max-width:960px; margin:0 auto; padding:48px 20px; position:relative; }
+.tl-spine {
+  position:absolute; left:50%; top:0; bottom:0; width:1px;
+  background:linear-gradient(180deg,transparent 0%,var(--border2) 5%,var(--border2) 95%,transparent 100%);
+  transform:translateX(-50%);
+}
+.tl-spine::after {
+  content:''; position:absolute; left:-1px; top:0; bottom:0; width:3px;
+  background:linear-gradient(180deg,transparent 0%,rgba(0,200,255,.12) 30%,rgba(0,200,255,.05) 70%,transparent 100%);
+  animation:spineGlow 5s ease-in-out infinite alternate;
+}
+@keyframes spineGlow { from{opacity:.3} to{opacity:.9} }
+
+.tl-year { position:relative; text-align:center; margin:28px 0 20px; z-index:5; }
+.tl-year span { font-family:'Orbitron',monospace; font-size:10px; letter-spacing:4px; color:var(--text2); background:var(--bg); padding:4px 14px; border:1px solid var(--border); border-radius:2px; }
+
+.tl-event { position:relative; width:46%; margin-bottom:40px; transition:opacity .3s; }
+.tl-event.left { margin-right:auto; margin-left:0; }
+.tl-event.right { margin-left:auto; margin-right:0; }
+.tl-event.hidden { opacity:.06; pointer-events:none; }
+
+.tl-event::before {
+  content:''; position:absolute; top:22px;
+  width:10px; height:10px; background:var(--accent);
+  border-radius:50%; box-shadow:0 0 10px var(--accent); z-index:5;
+}
+.tl-event.left::before { right:-6.5%; }
+.tl-event.right::before { left:-6.5%; }
+.tl-event::after {
+  content:''; position:absolute; top:26px; height:1px; width:6%;
+  background:linear-gradient(90deg,var(--accent),var(--border2));
+}
+.tl-event.left::after { right:-6%; background:linear-gradient(90deg,var(--border2),var(--accent)); }
+.tl-event.right::after { left:-6%; }
+
+.tl-card {
+  background:var(--panel); border:1px solid var(--border);
+  border-radius:3px; padding:18px 20px; cursor:pointer;
+  transition:all .22s; position:relative; overflow:hidden;
+}
+.tl-card::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(0,200,255,.025) 0%,transparent 60%); pointer-events:none; }
+.tl-card:hover { border-color:var(--accent); box-shadow:var(--glow); transform:translateY(-2px); }
+
+.tl-card .card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+.cat-badge { font-family:'Orbitron',monospace; font-size:8px; letter-spacing:1.5px; padding:3px 7px; border-radius:2px; text-transform:uppercase; display:inline-block; flex-shrink:0; }
+.cat-event { background:rgba(0,200,255,.12); color:var(--accent); border:1px solid rgba(0,200,255,.25); }
+.cat-person { background:rgba(255,184,48,.12); color:var(--gold); border:1px solid rgba(255,184,48,.25); }
+.cat-org { background:rgba(64,255,170,.12); color:var(--accent3); border:1px solid rgba(64,255,170,.25); }
+.cat-tech { background:rgba(176,96,255,.12); color:var(--purple); border:1px solid rgba(176,96,255,.25); }
+.cat-now { background:rgba(255,64,96,.12); color:var(--accent2); border:1px solid rgba(255,64,96,.25); }
+
+.importance { display:flex; gap:2px; }
+.imp-dot { width:6px; height:6px; border-radius:50%; background:var(--border2); }
+.imp-dot.on { background:var(--gold); box-shadow:0 0 4px var(--gold); }
+
+.tl-year-label { font-family:'Orbitron',monospace; font-size:11px; color:var(--text2); margin:6px 0 3px; letter-spacing:1.5px; }
+.tl-title { font-size:14px; font-weight:700; color:var(--white); margin-bottom:2px; line-height:1.4; }
+.tl-title-en { font-family:'Orbitron',monospace; font-size:9px; color:var(--text2); letter-spacing:1px; margin-bottom:7px; opacity:.7; }
+.tl-summary { font-size:12px; color:var(--text); line-height:1.7; opacity:.85; }
+
+.tl-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.tl-tag { font-size:10px; color:var(--text2); background:rgba(255,255,255,.04); border:1px solid var(--border); padding:2px 7px; border-radius:2px; }
+.tl-tag.person-tag { color:var(--gold); border-color:rgba(255,184,48,.2); cursor:pointer; }
+.tl-tag.person-tag:hover { background:rgba(255,184,48,.08); }
+
+.read-more-btn {
+  display:inline-flex; align-items:center; gap:6px; margin-top:12px;
+  font-family:'Orbitron',monospace; font-size:9px; letter-spacing:2px;
+  color:var(--accent); border:1px solid rgba(0,200,255,.3);
+  background:rgba(0,200,255,.05); padding:5px 12px; border-radius:2px;
+  cursor:pointer; transition:all .2s; text-transform:uppercase;
+}
+.read-more-btn:hover { background:rgba(0,200,255,.12); box-shadow:var(--glow); }
+
+/* Mobile TL */
+@media(max-width:640px){
+  .tl-spine{left:18px;}
+  .tl-event{width:82%;margin-left:44px!important;margin-right:0!important;}
+  .tl-event::before{left:-34px!important;right:auto!important;}
+  .tl-event::after{left:-26px!important;right:auto!important;width:20px;background:linear-gradient(90deg,var(--border2),var(--accent))!important;}
+}
+
+/* ══════════════════════════════
+   PAGE 2 — EVENT ANALYSIS
+══════════════════════════════ */
+#page-event { background:var(--bg); }
+.event-detail-wrap { max-width:860px; margin:0 auto; padding:40px 20px 80px; }
+
+.back-btn {
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:'Orbitron',monospace; font-size:9px; letter-spacing:2px;
+  color:var(--text2); border:1px solid var(--border);
+  background:transparent; padding:6px 14px; border-radius:2px;
+  cursor:pointer; transition:all .2s; margin-bottom:32px; text-transform:uppercase;
+}
+.back-btn:hover { border-color:var(--accent); color:var(--accent); }
+
+.ev-hero { padding:32px; background:var(--panel); border:1px solid var(--border2); border-radius:4px; margin-bottom:28px; position:relative; overflow:hidden; }
+.ev-hero::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--accent),transparent); }
+.ev-badge-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+.ev-year-big { font-family:'Orbitron',monospace; font-size:13px; color:var(--text2); letter-spacing:3px; }
+.ev-title-big { font-family:'Orbitron',monospace; font-size:clamp(16px,2.5vw,26px); font-weight:900; color:var(--white); margin-bottom:4px; line-height:1.3; }
+.ev-title-en { font-family:'Orbitron',monospace; font-size:11px; color:var(--accent); opacity:.6; letter-spacing:1.5px; margin-bottom:12px; }
+.ev-summary-big { font-size:14px; color:var(--text); line-height:1.8; }
+
+.ev-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; }
+@media(max-width:640px){ .ev-grid{grid-template-columns:1fr;} }
+
+.ev-section { background:var(--panel); border:1px solid var(--border); border-radius:3px; padding:20px; }
+.ev-section.full { grid-column:1/-1; }
+.ev-section-title { font-family:'Orbitron',monospace; font-size:9px; letter-spacing:3px; color:var(--accent); text-transform:uppercase; margin-bottom:14px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+
+.ev-section ul { padding-left:14px; }
+.ev-section ul li { font-size:13px; color:var(--text); line-height:1.75; margin-bottom:6px; }
+.ev-section p { font-size:13px; color:var(--text); line-height:1.8; }
+
+.fact-box { margin-top:0; padding:12px 14px; border-radius:3px; font-size:12px; line-height:1.65; }
+.fact-verified { background:rgba(64,255,170,.06); border-left:3px solid var(--accent3); }
+.fact-partial { background:rgba(255,184,48,.06); border-left:3px solid var(--gold); }
+.fact-unverified { background:rgba(255,64,96,.06); border-left:3px solid var(--accent2); }
+.fact-label { font-family:'Orbitron',monospace; font-size:8px; letter-spacing:2px; text-transform:uppercase; margin-bottom:5px; display:block; }
+.fact-verified .fact-label{color:var(--accent3);} .fact-partial .fact-label{color:var(--gold);} .fact-unverified .fact-label{color:var(--accent2);}
+
+.rel-events { display:flex; flex-wrap:wrap; gap:8px; }
+.rel-event-chip {
+  font-size:12px; color:var(--accent); background:rgba(0,200,255,.06);
+  border:1px solid rgba(0,200,255,.2); padding:5px 12px; border-radius:2px;
+  cursor:pointer; transition:all .2s;
+}
+.rel-event-chip:hover { background:rgba(0,200,255,.12); box-shadow:var(--glow); }
+
+.persons-grid { display:flex; flex-wrap:wrap; gap:10px; }
+.person-chip {
+  display:flex; align-items:center; gap:8px;
+  background:var(--panel2); border:1px solid var(--border);
+  padding:8px 12px; border-radius:3px; cursor:pointer; transition:all .2s;
+}
+.person-chip:hover { border-color:var(--gold); box-shadow:0 0 12px rgba(255,184,48,.2); }
+.person-chip .pc-avatar { width:32px; height:32px; border-radius:50%; background:var(--border2); display:flex; align-items:center; justify-content:center; font-family:'Orbitron',monospace; font-size:11px; color:var(--gold); flex-shrink:0; }
+.person-chip .pc-name { font-size:12px; font-weight:600; color:var(--white); }
+.person-chip .pc-role { font-size:10px; color:var(--text2); }
+
+/* ══════════════════════════════
+   PAGE 3 — CHARACTER PROFILES
+══════════════════════════════ */
+.profiles-wrap { max-width:1100px; margin:0 auto; padding:40px 20px 80px; }
+.profiles-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:20px; }
+
+.profile-card {
+  background:var(--panel); border:1px solid var(--border);
+  border-radius:4px; overflow:hidden; cursor:pointer; transition:all .22s;
+}
+.profile-card:hover { border-color:var(--gold); box-shadow:0 0 20px rgba(255,184,48,.15); transform:translateY(-2px); }
+
+.profile-header { padding:20px; background:linear-gradient(135deg,var(--panel2) 0%,var(--panel) 100%); position:relative; border-bottom:1px solid var(--border); }
+.profile-header::before { content:''; position:absolute; top:0;left:0;right:0;height:2px; background:linear-gradient(90deg,transparent,var(--gold),transparent); opacity:.6; }
+.profile-avatar { width:52px; height:52px; border-radius:50%; background:var(--border2); border:2px solid var(--border2); display:flex; align-items:center; justify-content:center; font-family:'Orbitron',monospace; font-size:16px; color:var(--gold); margin-bottom:12px; }
+.profile-name { font-size:15px; font-weight:700; color:var(--white); margin-bottom:2px; }
+.profile-name-en { font-family:'Orbitron',monospace; font-size:9px; color:var(--text2); letter-spacing:1px; margin-bottom:4px; opacity:.7; }
+.profile-role { font-size:11px; color:var(--accent); font-family:'Orbitron',monospace; letter-spacing:1px; margin-bottom:4px; }
+.profile-dates { font-size:11px; color:var(--text2); }
+
+.profile-body { padding:16px 20px; }
+.profile-bio { font-size:12px; color:var(--text); line-height:1.7; margin-bottom:12px; }
+.profile-events { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px; }
+.profile-event-tag { font-size:10px; color:var(--accent); background:rgba(0,200,255,.07); border:1px solid rgba(0,200,255,.2); padding:3px 8px; border-radius:2px; cursor:pointer; }
+.profile-event-tag:hover { background:rgba(0,200,255,.14); }
+.profile-stat { display:flex; gap:16px; padding-top:10px; border-top:1px solid var(--border); }
+.p-stat { text-align:center; }
+.p-stat-num { font-family:'Orbitron',monospace; font-size:18px; font-weight:900; color:var(--gold); display:block; }
+.p-stat-label { font-size:9px; color:var(--text2); letter-spacing:1px; }
+
+/* Profile Detail Modal */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.8); z-index:2000; overflow-y:auto; padding:40px 20px; }
+.modal-overlay.open { display:flex; align-items:flex-start; justify-content:center; }
+.modal-box { background:var(--panel); border:1px solid var(--border2); border-radius:6px; max-width:720px; width:100%; position:relative; overflow:hidden; }
+.modal-box::before { content:''; position:absolute; top:0;left:0;right:0;height:2px; background:linear-gradient(90deg,transparent,var(--gold),transparent); }
+.modal-close { position:absolute; top:14px; right:14px; background:transparent; border:1px solid var(--border); color:var(--text2); width:28px; height:28px; border-radius:50%; cursor:pointer; font-size:14px; transition:all .2s; z-index:10; }
+.modal-close:hover { border-color:var(--accent2); color:var(--accent2); }
+.modal-header { padding:28px 28px 20px; border-bottom:1px solid var(--border); }
+.modal-avatar { width:64px; height:64px; border-radius:50%; background:var(--border2); border:2px solid var(--border2); display:flex; align-items:center; justify-content:center; font-family:'Orbitron',monospace; font-size:20px; color:var(--gold); margin-bottom:14px; }
+.modal-name { font-family:'Orbitron',monospace; font-size:clamp(14px,2vw,22px); font-weight:900; color:var(--white); margin-bottom:3px; }
+.modal-name-en { font-size:11px; color:var(--text2); letter-spacing:1px; margin-bottom:4px; opacity:.7; }
+.modal-role { font-size:12px; color:var(--accent); margin-bottom:4px; }
+.modal-dates { font-size:12px; color:var(--text2); }
+.modal-body { padding:24px 28px; }
+.modal-section { margin-bottom:22px; }
+.modal-section-title { font-family:'Orbitron',monospace; font-size:9px; letter-spacing:3px; color:var(--accent); text-transform:uppercase; margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid var(--border); }
+.modal-section ul { padding-left:14px; }
+.modal-section ul li { font-size:13px; color:var(--text); line-height:1.75; margin-bottom:5px; }
+.modal-section p { font-size:13px; color:var(--text); line-height:1.8; }
+.modal-events-list { display:flex; flex-wrap:wrap; gap:6px; }
+.modal-ev-tag { font-size:11px; color:var(--accent); background:rgba(0,200,255,.07); border:1px solid rgba(0,200,255,.2); padding:4px 10px; border-radius:2px; cursor:pointer; }
+.modal-ev-tag:hover { background:rgba(0,200,255,.14); }
+
+/* ── Stats footer ── */
+.stats-bar { display:flex; gap:24px; justify-content:center; flex-wrap:wrap; padding:24px 20px; border-top:1px solid var(--border); background:rgba(8,14,28,.8); position:relative; z-index:1; }
+.stat-item { text-align:center; }
+.stat-num { font-family:'Orbitron',monospace; font-size:26px; font-weight:900; color:var(--accent); display:block; text-shadow:var(--glow); }
+.stat-label { font-size:10px; color:var(--text2); letter-spacing:1px; }
+
+/* Search box */
+.search-wrap { max-width:460px; margin:0 auto 20px; position:relative; }
+.search-input {
+  width:100%; background:var(--panel); border:1px solid var(--border2);
+  color:var(--white); font-size:13px; padding:10px 14px 10px 36px;
+  border-radius:3px; outline:none; transition:border-color .2s; font-family:'Noto Sans HK',sans-serif;
+}
+.search-input:focus { border-color:var(--accent); box-shadow:var(--glow); }
+.search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text2); font-size:13px; pointer-events:none; }
+
+/* Utility */
+.empty-msg { text-align:center; padding:60px 20px; color:var(--text2); font-family:'Orbitron',monospace; font-size:11px; letter-spacing:2px; }
+
+/* ── Codex Modal ── */
+.codex-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:3000; overflow-y:auto; padding:40px 20px; }
+.codex-modal-overlay.open { display:flex; align-items:flex-start; justify-content:center; }
+.codex-modal-box { background:var(--panel); border:1px solid var(--border2); border-radius:6px; max-width:780px; width:100%; position:relative; overflow:hidden; }
+.codex-modal-box::before { content:''; position:absolute; top:0;left:0;right:0;height:2px; background:linear-gradient(90deg,transparent,var(--accent),transparent); }
+.codex-modal-close { position:absolute; top:14px; right:14px; background:transparent; border:1px solid var(--border); color:var(--text2); width:28px; height:28px; border-radius:50%; cursor:pointer; font-size:14px; transition:all .2s; z-index:10; }
+.codex-modal-close:hover { border-color:var(--accent2); color:var(--accent2); }
+.codex-modal-header { padding:28px 28px 20px; border-bottom:1px solid var(--border); }
+.codex-modal-cat { font-family:'Orbitron',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; display:inline-block; padding:3px 8px; border-radius:2px; }
+.codex-modal-zh { font-size:clamp(16px,2.5vw,24px); font-weight:900; color:var(--white); margin-bottom:4px; line-height:1.3; }
+.codex-modal-en { font-family:'Orbitron',monospace; font-size:11px; color:var(--accent); letter-spacing:1.5px; margin-bottom:8px; opacity:.75; }
+.codex-modal-alias { font-size:11px; color:var(--text2); }
+.codex-modal-body { padding:24px 28px; }
+.codex-modal-section { margin-bottom:20px; }
+.codex-modal-section-title { font-family:'Orbitron',monospace; font-size:9px; letter-spacing:3px; color:var(--accent); text-transform:uppercase; margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid var(--border); }
+.codex-modal-section p { font-size:13px; color:var(--text); line-height:1.8; }
+.codex-chip-row { display:flex; flex-wrap:wrap; gap:6px; }
+.codex-ev-chip { font-size:11px; color:var(--accent2); background:rgba(255,64,96,.07); border:1px solid rgba(255,64,96,.2); padding:4px 10px; border-radius:2px; cursor:pointer; transition:all .15s; }
+.codex-ev-chip:hover { background:rgba(255,64,96,.15); }
+.codex-person-chip { font-size:11px; color:var(--gold); background:rgba(255,184,48,.07); border:1px solid rgba(255,184,48,.2); padding:4px 10px; border-radius:2px; cursor:pointer; transition:all .15s; }
+.codex-person-chip:hover { background:rgba(255,184,48,.15); }
+.codex-back-link { font-family:'Orbitron',monospace; font-size:9px; letter-spacing:2px; color:var(--text2); cursor:pointer; text-transform:uppercase; }
+.codex-back-link:hover { color:var(--accent); }
+.codex-wrap { max-width:1100px; margin:0 auto; padding:40px 20px 80px; }
+.codex-cat-section { margin-bottom:48px; }
+.codex-cat-header {
+  display:flex; align-items:center; gap:12px;
+  margin-bottom:16px; padding-bottom:10px;
+  border-bottom:1px solid var(--border2);
+}
+.codex-cat-icon { font-size:18px; }
+.codex-cat-title { font-family:'Orbitron',monospace; font-size:13px; font-weight:700; color:var(--white); letter-spacing:2px; }
+.codex-cat-title-en { font-family:'Orbitron',monospace; font-size:9px; color:var(--text2); letter-spacing:2px; }
+.codex-cat-count { margin-left:auto; font-family:'Orbitron',monospace; font-size:10px; color:var(--text2); }
+
+.codex-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:10px; }
+
+.codex-card {
+  background:var(--panel); border:1px solid var(--border);
+  border-radius:4px; padding:14px 16px; cursor:pointer;
+  transition:all .22s; position:relative; overflow:hidden;
+}
+.codex-card:hover { transform:translateY(-2px); box-shadow:var(--glow); border-color:var(--accent); }
+.codex-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; opacity:0; transition:opacity .2s; }
+.codex-card:hover::before { opacity:1; }
+
+.codex-card-zh { font-size:14px; font-weight:700; color:var(--white); margin-bottom:3px; }
+.codex-card-en { font-family:'Orbitron',monospace; font-size:9px; color:var(--accent); letter-spacing:1px; margin-bottom:8px; opacity:.8; }
+.codex-card-desc { font-size:12px; color:var(--text); line-height:1.65; margin-bottom:10px; }
+.codex-card-events { display:flex; flex-wrap:wrap; gap:4px; }
+.codex-event-tag {
+  font-size:10px; color:var(--accent2); background:rgba(255,64,96,.07);
+  border:1px solid rgba(255,64,96,.2); padding:2px 7px; border-radius:2px;
+  cursor:pointer; transition:all .15s;
+}
+.codex-event-tag:hover { background:rgba(255,64,96,.15); }
+.codex-search-wrap { max-width:460px; margin:0 auto 28px; position:relative; }
+</style>
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav>
+  <div class="nav-brand">UFO · EKMS</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('timeline',this)">主時間軸</button>
+    <button class="nav-tab" onclick="showPage('event',this)">事件剖析</button>
+    <button class="nav-tab" onclick="showPage('profiles',this)">人物檔案</button>
+    <button class="nav-tab" onclick="showPage('codex',this)">知識庫</button>
+  </div>
+</nav>
+
+<!-- ══ PAGE 1: MAIN TIMELINE ══ -->
+<div id="page-timeline" class="page active">
+  <div class="page-header">
+    <div class="eyebrow">Event Knowledge Management System</div>
+    <h1>主時間軸</h1>
+    <p>從1908年通古斯大爆炸到2026年五角大廈解密，以時間軸方式快速瀏覽整體事件脈絡</p>
+  </div>
+  <div class="filter-bar" id="tl-filters">
+    <button class="filter-btn active" onclick="filterTL('all',this)">全部</button>
+    <button class="filter-btn" onclick="filterTL('event',this)">重大事件</button>
+    <button class="filter-btn" onclick="filterTL('person',this)">關鍵人物</button>
+    <button class="filter-btn" onclick="filterTL('org',this)">秘密組織</button>
+    <button class="filter-btn" onclick="filterTL('tech',this)">科技發現</button>
+    <button class="filter-btn" onclick="filterTL('now',this)">揭密浪潮</button>
+  </div>
+  <div class="timeline-wrap">
+    <div class="tl-spine"></div>
+    <div id="tl-container"></div>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-item"><span class="stat-num">79</span><span class="stat-label">年跨度</span></div>
+    <div class="stat-item"><span class="stat-num">35+</span><span class="stat-label">事件節點</span></div>
+    <div class="stat-item"><span class="stat-num">30+</span><span class="stat-label">人物檔案</span></div>
+    <div class="stat-item"><span class="stat-num">4</span><span class="stat-label">影片來源</span></div>
+  </div>
+</div>
+
+<!-- ══ PAGE 2: EVENT ANALYSIS ══ -->
+<div id="page-event" class="page">
+  <div class="page-header">
+    <div class="eyebrow">Deep Record Layer</div>
+    <h1>事件剖析</h1>
+    <p>單一事件的完整資料頁——從主時間軸點選任何事件即可在此查看完整深度紀錄</p>
+  </div>
+  <div class="event-detail-wrap" id="event-detail-content">
+    <div class="empty-msg">← 請從主時間軸選擇一個事件</div>
+  </div>
+</div>
+
+<!-- ══ PAGE 3: CHARACTER PROFILES ══ -->
+<div id="page-profiles" class="page">
+  <div class="page-header">
+    <div class="eyebrow">Character Database</div>
+    <h1>人物檔案</h1>
+    <p>所有在時間軸及事件剖析中出現過的人物，包括主要吹哨者、政治人物、科學家及神秘人物</p>
+  </div>
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterProfiles('all',this)">全部</button>
+    <button class="filter-btn" onclick="filterProfiles('whistleblower',this)">吹哨者</button>
+    <button class="filter-btn" onclick="filterProfiles('military',this)">軍政人物</button>
+    <button class="filter-btn" onclick="filterProfiles('scientist',this)">科學家</button>
+    <button class="filter-btn" onclick="filterProfiles('journalist',this)">記者／研究者</button>
+    <button class="filter-btn" onclick="filterProfiles('missing',this)">失蹤／死亡</button>
+  </div>
+  <div class="profiles-wrap">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" type="text" placeholder="搜尋人物名稱或關鍵詞..." oninput="searchProfiles(this.value)" />
+    </div>
+    <div class="profiles-grid" id="profiles-grid"></div>
+  </div>
+</div>
+
+<!-- ══ PAGE 4: CODEX ══ -->
+<div id="page-codex" class="page">
+  <div class="page-header">
+    <div class="eyebrow">Knowledge Codex</div>
+    <h1>知識庫</h1>
+    <p>所有在事件中出現的組織、計劃、科技、地點、文件、天體、UFO類型及戰機型號——中英對照，可跳轉至相關事件</p>
+  </div>
+  <div class="filter-bar" id="codex-filters">
+    <button class="filter-btn active" onclick="filterCodex('all',this)">全部</button>
+    <button class="filter-btn" onclick="filterCodex('org',this)">組織／計劃</button>
+    <button class="filter-btn" onclick="filterCodex('tech',this)">科技／現象</button>
+    <button class="filter-btn" onclick="filterCodex('place',this)">地點／設施</button>
+    <button class="filter-btn" onclick="filterCodex('doc',this)">文件／報告</button>
+    <button class="filter-btn" onclick="filterCodex('entity',this)">人物稱謂</button>
+    <button class="filter-btn" onclick="filterCodex('celestial',this)">天體</button>
+    <button class="filter-btn" onclick="filterCodex('ufo',this)">UFO類型</button>
+    <button class="filter-btn" onclick="filterCodex('aircraft',this)">戰機型號</button>
+    <button class="filter-btn" onclick="filterCodex('encounter',this)">接觸分類</button>
+  </div>
+  <div class="codex-wrap">
+    <div class="codex-search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" type="text" placeholder="搜尋名稱、英文或描述..." oninput="searchCodex(this.value)" />
+    </div>
+    <div id="codex-container"></div>
+  </div>
+</div>
+
+<!-- ══ Profile Modal ══ -->
+<div class="modal-overlay" id="profile-modal" onclick="closeModal(event)">
+  <div class="modal-box" id="modal-box">
+    <button class="modal-close" onclick="closeModalBtn()">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- ══ Codex Modal ══ -->
+<div class="codex-modal-overlay" id="codex-modal" onclick="if(event.target===this)closeCodexModal()">
+  <div class="codex-modal-box">
+    <button class="codex-modal-close" onclick="closeCodexModal()">✕</button>
+    <div id="codex-modal-content"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════
+
+const EVENTS = [
+  {
+    id:'e1',year:'1908年',date:'1908.06',side:'left',cat:'event',catLabel:'重大事件',importance:3,
+    title:'通古斯大爆炸',titleEn:'Tunguska Event',
+    summary:'俄羅斯西伯利亞發生人類史上最強空中爆炸，威力相當於1000顆廣島原子彈，至今無明顯隕石坑，成20世紀最大天文謎團。',
+    persons:[],
+    relEvents:['e31'],
+    fullDetail:{
+      timeline:[
+        '1908年6月30日清晨7:17，俄羅斯西伯利亞通古斯河附近發生巨型空中爆炸',
+        '爆炸瞬間摧毀超過2150平方公里的森林，8000萬棵樹倒塌',
+        '形成50公里直徑蝴蝶形破壞區，爆炸中心無隕石坑',
+        '衝擊波傳至數百公里外，在英國和德國地震儀均有記錄',
+        '大氣壓力波圍繞地球兩圈'
+      ],
+      background:'通古斯大爆炸是迄今為止地球上有記錄的最大型空中爆炸事件。爆炸估計由一顆直徑50-100米的石質隕石或彗星碎片在大氣層中爆炸引起。由於地點偏遠，直到1927年才有科學考察隊抵達。',
+      impact:'成為評估近地天體威脅的重要參考。與3I/ATLAS的討論相關——若後者撞地，理論威力可達通古斯事件的3000倍。',
+      analysis:'科學主流認為是隕石空中爆炸。部分UFO研究者認為爆炸物體性質不明，無隕石坑本身已是異常。',
+      factCheck:{type:'verified',text:'歷史記錄明確，地震儀數據和大量目擊者文件均存。爆炸物體性質仍有爭議（隕石／彗星），但事件本身完全屬實。'}
+    }
+  },
+  {
+    id:'e2',year:'1947年6月',date:'1947.06',side:'right',cat:'event',catLabel:'重大事件',importance:4,
+    title:'阿諾德事件：「飛碟」一詞誕生',titleEn:'Kenneth Arnold Sighting — Birth of "Flying Saucer"',
+    summary:'飛行員Kenneth Arnold在華盛頓州目擊9架碟形物體，速度達每小時2700公里。他向記者說「flying saucers」，從此「飛碟」成為UFO代名詞。',
+    persons:['p_arnold'],
+    relEvents:['e3','e7'],
+    fullDetail:{
+      timeline:[
+        '1947年6月24日下午，飛行員Kenneth Arnold駕駛私人飛機飛越喀斯開山脈',
+        '在海拔4391米發現9個發光碟形物體，排成V形梯隊飛行',
+        '估計速度達每小時2700公里（當時最快噴射機僅900公里/小時）',
+        '飛行路線上下起伏如「湖邊打水漂」',
+        '降落後向機場人員描述所見，記者引用「flying saucers」作標題，「飛碟」一詞誕生'
+      ],
+      background:'Kenneth Arnold是一位商業飛行員，正執行搜索失蹤軍機的任務。目擊發生在他飛越Mount Rainier附近。他的描述非常具體，包括飛行器的大小、速度和飛行方式。',
+      impact:'「飛碟」(Flying Saucer)一詞從此成為全球UFO的代名詞。此事件引發美國全境對UFO的廣泛關注，直接促成後來的官方調查。推測與1952年華盛頓UFO事件為同批外星人（均為9架飛碟列隊）。',
+      analysis:'至今無法以常規技術解釋每小時2700公里且無音爆的飛行器——1947年任何已知飛行器都不可能達到此速度。',
+      factCheck:{type:'verified',text:'Arnold的目擊報告有多份媒體採訪原始記錄，「飛碟」詞源屬實。速度估計是他對飛行器計時後推算的。'}
+    }
+  },
+  {
+    id:'e3',year:'1947年7月',date:'1947.07',side:'left',cat:'event',catLabel:'重大事件',importance:5,
+    title:'羅茲威爾事件：現代UFO神話的起源',titleEn:'Roswell Incident — Origin of the Modern UFO Myth',
+    summary:'新墨西哥州羅茲威爾附近有不明飛行物墜毀，美軍回收殘骸和外星人遺體，官方最初承認回收「飛碟」，後改口稱「氣象氣球」。幾乎所有現代UFO陰謀論的起點。',
+    persons:['p_brazel','p_marcel','p_ramey','p_ebe1'],
+    relEvents:['e4','e5','e6','e7'],
+    fullDetail:{
+      timeline:[
+        '7月2日晚：羅茲威爾城鎮居民目擊橢圓形發光物體高速飛過',
+        '7月5日：牧場主人Mac Brazel在Corona農場發現大量金屬碎片',
+        '7月6日：Brazel將碎片交給當地警察，警方通知羅茲威爾空軍基地',
+        '7月7日：Jesse Marcel少校前往農場視察，確認碎片非常規金屬',
+        '7月8日早上：羅茲威爾陸軍航空基地發出新聞稿，承認回收「飛碟」',
+        '7月8日下午：軍方改口，雷米將軍召開記者會，聲稱是「氣象氣球」',
+        '7月8日：土木工程師在Socorro附近發現第二個現場，含飛碟殘骸和外星人屍體'
+      ],
+      background:'羅茲威爾軍用機場是當時世界上唯一裝備核武器的空軍基地。事件發生後消息被封鎖，直到1978年才因作家Charles Berlitz的訪問而重新浮現。事件1947-1978年間幾乎無人談論，大量「記憶」是1978年後才出現的。',
+      impact:'成為現代UFO文化的核心敘事。18號機庫傳說、MJ-12成立、外星人艾羅事件、華盛頓UFO事件均與此相關聯。',
+      analysis:'兩架飛碟假說：可能因1947年7月4日雷暴影響，兩架飛碟失控相撞，碎片散落農場，另一架墜毀在Socorro以南（1949年才被發現）。近年利用電腦高清復刻放大雷米將軍信件，疑似顯示「飛行器殘骸」和「幾名受害者」字眼。',
+      factCheck:{type:'partial',text:'事件本身存在（軍方確有回收行動），但外星人屍體的描述幾乎全部來自1978年後的陳述。真相至今無定論。'}
+    }
+  },
+  {
+    id:'e4',year:'1947年9月',date:'1947.09a',side:'right',cat:'org',catLabel:'秘密組織',importance:4,
+    title:'Twining備忘錄：美國首份官方UFO評估',titleEn:'Twining Memo — First Official U.S. UFO Assessment',
+    summary:'空軍中將Nathan Twining簽署內部備忘錄，確認UFO現象「真實存在，非幻覺」，建議成立專門調查部門。被視為美國官方第一份正式UFO評估文件。',
+    persons:['p_twining'],
+    relEvents:['e3','e8'],
+    fullDetail:{
+      timeline:[
+        '1947年9月21日：Nathan Twining在羅茲威爾事件後兩個半月簽署備忘錄',
+        '備忘錄送交陸軍航空司令部',
+        '文件後來成為Project Sign成立的依據'
+      ],
+      background:'這份備忘錄在羅茲威爾事件發生兩個半月後完成，是美國軍方對當年一系列UFO目擊事件的系統性評估。在此之前雖有零星軍方報告，但均無系統性分析。',
+      impact:'直接促成Project Sign（1948年）的成立，為後來的Project Grudge和Project Blue Book奠定基礎。',
+      analysis:'備忘錄已解密，是UFO研究中最常引用的真實歷史文件之一。',
+      factCheck:{type:'verified',text:'備忘錄已解密，原文可查，是真實的歷史文件。'}
+    }
+  },
+  {
+    id:'e5',year:'1947年（羅茲威爾後）',date:'1947.09b',side:'left',cat:'org',catLabel:'秘密組織',importance:5,
+    title:'MJ-12成立：最高機密的地外文明管理委員會',titleEn:'MJ-12 Established — Majestic 12 / Operation Majestic',
+    summary:'杜魯門總統創立Operation Majestic 12，12名成員獨家管理所有地外文明事務，凌駕美國政府體制之上。第一代成員國防部長Forrestal因主張公開真相遭「自殺」。',
+    persons:['p_truman','p_forrestal','p_rockefeller'],
+    relEvents:['e3','e9','e10','e11'],
+    fullDetail:{
+      timeline:[
+        '1947年：杜魯門以行政命令成立MJ-12，直接向總統負責',
+        '1949年：國防部長Forrestal主張公開外星人資訊，遭強烈反對',
+        '1949年：Forrestal被以「精神病」為由免職，後在醫療中心三樓屋頂死亡',
+        '1953年：艾森豪威爾上任，允許私人機構加入MJ-12，Rockefeller入組',
+        '1953年：Rockefeller建議由CIA領導MJ-12，艾森豪同意後悔恨',
+        '1984年：MJ-12文件首次以神秘方式曝光，以黑白菲林寄給UFO愛好者'
+      ],
+      background:'MJ-12是一個不屬於美國政府正式體制但凌駕其上的秘密組織。12名常駐成員包括科學家、CIA局長、空軍參謀長等。還設有PI40外層行動組（約40人）和特赦委員會（包括愛因斯坦、奧本海默）。',
+      impact:'成為深層政府的前身。軍工複合體的崛起直接來自MJ-12允許私人機構參與後的結果。甘迺迪後來試圖改革MJ-12，被認為是其遇刺原因之一。',
+      analysis:'MJ-12文件的真實性存疑（FBI認定為偽造），但2023年聽證會中David Grusch的描述與MJ-12的運作模式高度一致。',
+      factCheck:{type:'partial',text:'MJ-12作為組織的真實性存爭議，文件真偽未定。但「秘密管控UFO資訊的組織」的存在，已被多位可信的吹哨者間接印證。'}
+    }
+  },
+  {
+    id:'e6',year:'1947–1952年',date:'1947.10',side:'right',cat:'person',catLabel:'關鍵人物',importance:4,
+    title:'EBE1號（外星人艾羅）：第一個與人類溝通的地外生命',titleEn:'EBE-1 — First Extraterrestrial to Communicate with Humans',
+    summary:'羅茲威爾唯一生還外星人，被美軍關押至1952年。透過心靈感應與護士麥克艾羅伊溝通，學會英語後向人類揭露外星知識，死前向母星發出六條訊息，直接引發華盛頓UFO事件。',
+    persons:['p_ebe1','p_nurse'],
+    relEvents:['e3','e7','e13'],
+    fullDetail:{
+      timeline:[
+        '1947年7月：在羅茲威爾現場被軍方救起，轉移至18號機庫',
+        '1947年7月起：透過心靈感應與護士麥克艾羅伊建立溝通',
+        '護士每天14小時為EBE朗讀書籍，EBE學習英語',
+        '幾天後EBE已可自行閱讀，不久後可用英語表達思想',
+        '美軍根據EBE提供的資訊進行UFO逆向工程',
+        '1952年：EBE1號死亡，死前成功發出六條訊息向母星求援',
+        '1952年12月：美軍收到賽伯星人回覆'
+      ],
+      background:'EBE在Project Serpo敘事中被稱為EBE1號，在外星人艾羅敘事中被稱為「艾羅」。兩個版本基本描述同一個外星人，但細節有所差異。他是唯一在羅茲威爾事件中生還並與人類有實質交流的外星人。',
+      impact:'向人類解釋UFO構造，幫助美軍逆向工程。死前發出的六條訊息觸發了1952年華盛頓UFO事件（母星來接他）。他提供的母星座標成為Project Serpo的基礎。',
+      analysis:'EBE1號的存在是所有最重要的UFO陰謀論的核心節點。',
+      factCheck:{type:'unverified',text:'完全依賴個人陳述和傳聞，無任何官方文件佐證。Project Serpo和外星人艾羅是兩個相互關聯但有差異的陰謀論框架。'}
+    }
+  },
+  {
+    id:'e7',year:'1952年7月',date:'1952.07',side:'left',cat:'event',catLabel:'重大事件',importance:5,
+    title:'華盛頓UFO事件：飛碟入侵美國首都',titleEn:'Washington D.C. UFO Incident — The Capitol Flyover',
+    summary:'九架UFO在白宮、國會大廈上空飛行，被雷達追蹤和飛行員目擊，速度由160急升至1500公里/小時。美軍多次出動F-24攔截均失敗。雷米將軍再次召開記者會，稱為「天文現象」。',
+    persons:['p_truman','p_ramey','p_einstein'],
+    relEvents:['e2','e3','e6','e8'],
+    fullDetail:{
+      timeline:[
+        '1952年7月19日晚11:40：華盛頓國家機場雷達發現9個不明物體',
+        '7月19日深夜至20日凌晨5:00：UFO在首都上空出現，速度最高達1500公里/小時',
+        'UFO曾在白宮和國會大廈上空飛過',
+        '美軍出動F-24攔截，UFO升空後消失，降落後再出現，「捉迷藏」模式',
+        '7月25日：美國國務院發通告，下令堅決擊落不服命令的UFO',
+        '7月26日晚：UFO再次整隊在首都上空出現，再次挑釁',
+        '7月29日：雷米將軍在五角大廈召開二戰以來最大規模記者會，稱為天文現象'
+      ],
+      background:'杜魯門震驚，致電愛因斯坦諮詢。愛因斯坦建議觀察但絕不開火，杜魯門不聽，命令擊落。但從未成功擊落任何一架。藍皮書計劃對此事件的調查結果被政府否定。',
+      impact:'直接促使藍皮書計劃進入「黑暗時代」。理論上可能是賽伯星人來尋找EBE1號（因收不到訊息）。',
+      analysis:'此次事件有機場雷達、軍方雷達、地面目擊者和飛行員的多方記錄，是最有證據支持的重大UFO事件之一。',
+      factCheck:{type:'verified',text:'事件有大量媒體報道、雷達記錄和軍方目擊者。五角大廈記者會屬實。「接走外星人」是推測性解釋。'}
+    }
+  },
+  {
+    id:'e8',year:'1947–1969年',date:'1947.11',side:'right',cat:'org',catLabel:'秘密組織',importance:4,
+    title:'藍皮書計劃：22年官方UFO調查與黑暗化',titleEn:'Project Blue Book — 22-Year Official UFO Investigation',
+    summary:'人類史上最長UFO系統性調查，調查12618件個案，聲稱90%可解釋。但實際上受政府壓制，連1952年UFO入侵白宮上空都被歸類為「可解釋」。J. Allen Hynek從懷疑論者轉為確信者。',
+    persons:['p_hynek'],
+    relEvents:['e7','e4'],
+    fullDetail:{
+      timeline:[
+        '1948年：Project Sign成立，早期結論認為UFO可能是外星飛船',
+        '1949年：改名Project Grudge，立場轉為強硬否認',
+        '1952年：Project Blue Book正式運作',
+        '1952年華盛頓事件後：進入「黑暗時代」，真正的UFO個案不再公開',
+        '1954-1958年：在新墨西哥州進行超過3000小時超廣角相機觀察',
+        '1969年12月17日：計劃落幕，22年的調查宣告結束',
+        'Hynek後期改變立場，1969年後成為獨立UFO研究者'
+      ],
+      background:'藍皮書計劃共有12618件個案，官稱90%可解釋為天文現象或其他飛行器。5.6%「未能解釋」，但同時聲稱「無外星人存在的證據」。即使是1952年UFO入侵首都事件，藍皮書計劃也將其歸類為「可解釋」。',
+      impact:'Hynek的「近距離接觸分類法」成為後世UFO研究的標準框架。藍皮書計劃的「黑暗化」是後來吹哨者指控政府隱瞞真相的重要依據。',
+      analysis:'J. Allen Hynek後期轉變態度，公開批評藍皮書計劃是政治工具而非科學調查。',
+      factCheck:{type:'verified',text:'藍皮書計劃是真實歷史項目，文件已部分解密。Hynek的接觸分類法是公認的UFO研究框架。'}
+    }
+  },
+  {
+    id:'e9',year:'1953年後',date:'1953.01',side:'left',cat:'person',catLabel:'關鍵人物',importance:5,
+    title:'艾森豪威爾與外星人：兩次神秘失蹤與致命條約',titleEn:'Eisenhower & Extraterrestrials — The Secret Treaty',
+    summary:'艾森豪威爾傳說曾秘密與兩種外星人會面：精靈型外星人要求放棄核武（遭拒），灰人型外星人提出以地球生物基因換外星科技。最終簽訂的條約灰人從未遵守，引發大規模人體實驗。',
+    persons:['p_eisenhower','p_rockefeller'],
+    relEvents:['e5','e10','e13'],
+    fullDetail:{
+      timeline:[
+        '1954年2月：艾森豪威爾在拉斯維加斯高爾夫球場神秘失蹤數小時（官稱牙科手術，但無記錄）',
+        '第一次會面：與外形似精靈的北歐型外星人會面，對方要求人類放棄核武',
+        '艾森豪拒絕：不願放棄核武，會面破裂',
+        '第二次會面：與灰人型外星人會面，簽訂條約',
+        '條約：外星人可收集有限地球基因樣本，換取外星科技轉讓',
+        '1955年：艾森豪成立51區，以Holloman空軍基地為外交接觸點',
+        '後期：灰人不守條約，綁架數百萬美國人，向艾森豪展示解除核彈能力'
+      ],
+      background:'外形似精靈的外星人被稱為「黃皮書」外星人，曾提供宇宙知識。灰人種則是垂死種族，需要地球基因。條約條款包括：外星人不可與其他國家協議、美國保守秘密、外星人每年收集固定數量人體、可用美國牛羊做基因實驗。',
+      impact:'此條約被認為是後來大規模牛隻殘害事件和人體綁架事件的根源。Rockefeller加入MJ-12後，艾森豪逐漸失去對地外文明事務的控制。',
+      analysis:'艾森豪威爾曾威脅要動用軍隊接管S4基地，CIA特工Kewper是被派去核實基地情況的人。',
+      factCheck:{type:'unverified',text:'艾森豪在拉斯維加斯的「失蹤」有間接記錄，但會見外星人的說法純屬傳聞，無任何官方文件佐證。'}
+    }
+  },
+  {
+    id:'e10',year:'1953–1961年',date:'1953.02',side:'right',cat:'org',catLabel:'秘密組織',importance:5,
+    title:'Rockefeller入主MJ-12：深層政府與軍工複合體誕生',titleEn:'Rockefeller Joins MJ-12 — Rise of the Military-Industrial Complex',
+    summary:'艾森豪允許Rockefeller加入MJ-12，私人資本接管UFO秘密。軍工複合體崛起，總統失去對地外文明事務的控制。艾森豪退任演說公開警告「軍工複合體的崛起」——被視為他最大的後悔。',
+    persons:['p_rockefeller','p_eisenhower'],
+    relEvents:['e5','e9','e11'],
+    fullDetail:{
+      timeline:[
+        '1953年：Rockefeller加入MJ-12，同時任政府諮詢委員會主席',
+        '1954-55年：Rockefeller出任總統冷戰戰略特別助理',
+        '1953年：提議由CIA領導MJ-12，打破總統直接監督',
+        '逆向工程所得的外星科技開始優先流入私人軍火商',
+        '涉及公司：洛克希德·馬丁（臭鼬工廠）、波音、萬山都等',
+        '1961年：艾森豪退任演說公開警告軍工複合體'
+      ],
+      background:'軍工複合體是指軍隊與軍事工業私人機構因政治和經濟利益過於緊密而產生的共生關係。私人機構加入MJ-12後，可以繞過國會監察，秘密持有UFO殘骸和外星科技。',
+      impact:'深層政府正式成形。甘迺迪繼任後試圖改革，被認為是其遇刺的原因。MJ-12從此與總統隔離，即使是現任總統也無法得知UFO的完整情報。',
+      analysis:'「軍工複合體」是真實的政治經濟現象，艾森豪威爾退任演說是公開記錄。MJ-12私有化的具體細節屬推測。',
+      factCheck:{type:'partial',text:'Rockefeller任職政府顧問屬實。軍工複合體是真實的政治現象，艾森豪演說是公開記錄。MJ-12作為具體組織的私有化細節屬推測。'}
+    }
+  },
+  {
+    id:'e11',year:'1960年代',date:'1961.01',side:'left',cat:'event',catLabel:'重大事件',importance:5,
+    title:'甘迺迪之死：因外星秘密遭滅口的總統',titleEn:'JFK Assassination — Silenced for the Extraterrestrial Secret',
+    summary:'甘迺迪上任後發現MJ-12獨攬外星情報，向MJ-12發出最後通牒：若繼續封鎖資訊，將向國民公開外星人存在。1963年11月22日遇刺，被認為是繼Forrestal後第二個因外星秘密而死的重要政治人物。',
+    persons:['p_kennedy'],
+    relEvents:['e5','e10'],
+    fullDetail:{
+      timeline:[
+        '1961年：甘迺迪上任，試圖了解外星人相關情報，發現被MJ-12封鎖',
+        '甘迺迪要求MJ-12讓總統可監督其運作',
+        '甘迺迪向MJ-12發出最後通牒：交出控制權或他將公開外星人秘密',
+        '有消息稱甘迺迪已有全盤計劃，誓要改革MJ-12',
+        '1963年11月22日：甘迺迪在達拉斯遇刺身亡',
+        '官方認定：Lee Harvey Oswald單獨行動',
+        '2026年：特朗普政府解密JFK文件'
+      ],
+      background:'甘迺迪的故事是MJ-12陰謀論的核心敘事之一。MJ-12視甘迺迪的威脅為致命打擊，因為一旦公開，整個秘密體制將崩潰。',
+      impact:'此後每任美國總統均無法獲取完整的UFO情報，連奧巴馬都承認無法得知。甘迺迪JFK文件於2026年由特朗普部分解密，但「MJ-12主謀」說法仍無直接證據。',
+      analysis:'甘迺迪遇刺屬實，但「MJ-12主謀遇刺」是陰謀論，無直接證據。JFK文件至2026年仍只是部分解密。',
+      factCheck:{type:'partial',text:'甘迺迪遇刺屬實，JFK文件2026年部分解密。「MJ-12主謀遇刺」是陰謀論，無直接證據。'}
+    }
+  },
+  {
+    id:'e12',year:'1964–1978年',date:'1964.01',side:'right',cat:'event',catLabel:'重大事件',importance:4,
+    title:'Project Serpo：人類歷史上最大膽的外星交流計劃',titleEn:'Project Serpo — The Interstellar Exchange Program',
+    summary:'1964年賽伯星人降落霍洛曼空軍基地，雙方達成協議：12名美軍前往賽伯星居住，一名EBE留守地球。12人在異星生活13年（原訂10年），僅8人返回，全部因輻射影響陸續死亡，最後一人於2002年去世。',
+    persons:['p_ebe1'],
+    relEvents:['e6','e9'],
+    fullDetail:{
+      timeline:[
+        '1952年12月：美軍收到EBE1號死前訊息傳回的賽伯星人回覆',
+        '1964年4月24日：兩架賽伯星飛船降落霍洛曼空軍基地，交換外交人員計劃確認',
+        '選拔：從5萬多人中選10男2女，全部孤兒未婚無子女',
+        '1965年7月：12人帶40噸地球食物登上外星太空船出發',
+        '超光速飛行9個月抵達（賽伯星距地39光年）',
+        '交流期間：成員「308」病逝，遺體被賽伯星人用於人體實驗，引發外交危機',
+        '1978年：8人返回地球，寫下3000頁「紅皮書」',
+        '2002年：最後一名交流成員因輻射相關疾病去世'
+      ],
+      background:'賽伯星基本資料：直徑11000公里，兩個太陽、兩個月亮，自轉43小時/天，公轉865天/年，人口65萬。賽伯星人腦容量比人類大400毫升，壽命較長。',
+      impact:'Project Serpo是所有UFO陰謀論中細節最豐富的一個。「紅皮書」從未公開，無法核實。',
+      analysis:'Project Serpo完全依賴匿名來源，無任何官方文件。「紅皮書」從未公開。',
+      factCheck:{type:'unverified',text:'Project Serpo完全依賴匿名來源，無任何官方文件佐證。「紅皮書」從未公開。是最著名的UFO陰謀論之一，自洽性高但無法獨立驗證。'}
+    }
+  },
+  {
+    id:'e13',year:'1974年',date:'1974.01',side:'right',cat:'event',catLabel:'重大事件',importance:3,
+    title:'貝茨球：具有自我意識的神秘金屬球體',titleEn:'Betz Sphere — The Self-Aware Metal Orb',
+    summary:'佛羅里達州森林大火後發現的20厘米金屬球，可對聲音作出反應、自動移動，內部含原子序數超過140的未知元素。美國海軍鑑定後無法解釋。2025年哥倫比亞「布加球」出現類似特性。',
+    persons:['p_hynek'],
+    relEvents:['e14'],
+    fullDetail:{
+      timeline:[
+        '1974年3月27日：貝茨一家在清理森林大火後焦土時發現閃亮金屬球',
+        '帶回家後發現球體可對聲音反應、自動滾動、跟隨人移動',
+        '美國海軍要求鑑定，在Mayport海軍基地進行兩週詳細檢查',
+        '海軍發現：431不鏽鋼合金外殼，4個磁極，內部有空腔和3個小球',
+        'J. Allen Hynek參與研究，聲稱內部元素原子序數超過140（地球最高合成元素為118）',
+        '後來有人高價買走，再後來傳出被盜，現下落不明',
+        '2025年3月2日：哥倫比亞布加市出現類似銀色金屬球（布加球）',
+        '布加球重量由2公斤增至10公斤（體積不變），接觸者出現頭暈嘔心'
+      ],
+      background:'貝茨球展現的特性：表面由431不鏽鋼合金組成、4個磁極（正常磁性物體只有2個）、內部空腔含3個小球（其中一個已「爆」）。布加球則含三種材質、18個對稱微型球體、類晶片核心結構，在190-300Hz頻率下產生震動。',
+      impact:'UFO界認為這些球體可能是外星偵察無人機，特別是因為它們經常在軍事基地附近被發現。',
+      analysis:'現實主義解釋：大型工業鋼球（化工廠或造紙廠的止回閥），自然滾動來自內部不均勻密度。但海軍和多位工程師均無法給出最終結論。',
+      factCheck:{type:'partial',text:'貝茨球的發現和鑑定過程有媒體記錄。「未知元素」說法來自早期分析，未獲學術機構正式確認。布加球事件發生於2025年，有影片記錄。'}
+    }
+  },
+  {
+    id:'e14',year:'1967年3月',date:'1967.03',side:'left',cat:'event',catLabel:'重大事件',importance:4,
+    title:'Malmstrom空軍基地核彈癱瘓事件',titleEn:'Malmstrom AFB Nuclear Missile Shutdown Incident',
+    summary:'UFO盤旋在核彈發射井上方，導致10支洲際彈道核彈瞬間失去備戰狀態。核彈發射官Robert Salas親眼目睹，用了一整天才恢復。被Steven Greer的Disclosure Project引用為UFO干預核武的最重要案例。',
+    persons:['p_salas','p_greer'],
+    relEvents:['e8'],
+    fullDetail:{
+      timeline:[
+        '1967年3月16日：第一次事件，UFO盤旋後10支核彈失去備戰狀態（8天後公開的解密文件披露）',
+        '1967年3月24日晚8-9時：Robert Salas在地下18米發射控制室當值',
+        '地面警衛報告見到橙色橢圓形物體，約12米長，低空盤旋',
+        '數分鐘內：Salas操作板上10支核彈由綠（可發射）轉紅（不可發射）',
+        'UFO飛走後，美軍耗費整整一天才恢復核彈備戰狀態',
+        '1996年：解密文件確認此事件，Salas首次公開陳述'
+      ],
+      background:'Robert Salas是美國空軍的核彈發射官，1964-71年服役，事件發生時26歲。他強調核彈系統有多重繁複保護設計，單一故障不可能同時影響10支核彈。事發時天氣正常，無人為破壞跡象。',
+      impact:'被視為UFO具備干擾人類最危險武器能力的最有力證據。多位UFO研究者認為這顯示外星人在監視並有能力停止核戰。',
+      analysis:'官方事後解釋為電力故障，但核彈系統的多重冗餘設計使此解釋難以服眾。',
+      factCheck:{type:'partial',text:'Salas的陳述有相關解密文件部分印證（1967年確有異常事件記錄）。具體UFO細節是個人陳述，無影片記錄。'}
+    }
+  },
+  {
+    id:'e15',year:'1989年',date:'1989.01',side:'right',cat:'person',catLabel:'關鍵人物',importance:5,
+    title:'Bob Lazar：S4基地吹哨者，115號元素先知？',titleEn:'Bob Lazar — S-4 Whistleblower & Element 115',
+    summary:'1989年Bob Lazar在KLAS電視台首次披露自己在S4基地逆向工程外星飛船，提及UFO使用「115號元素」——當時此元素尚不存在。2003年鏌（Moscovium）被合成，但科學家明確否認與Lazar說法有關。',
+    persons:['p_lazar','p_knapp','p_teller'],
+    relEvents:['e5','e13'],
+    fullDetail:{
+      timeline:[
+        '1989年11月11日和13日：Bob Lazar以化名「Dennis」接受George Knapp訪問（KLAS電視台）',
+        '後來公開真實身份，引發全球轟動',
+        '聲稱通過EG&G公司獲得Q Clearance（能源部最高機密許可）',
+        '在S4基地負責逆向工程「Sport Model」飛船的推進系統',
+        '描述S4基地：帕普斯湖附近，嵌入山體，9個機庫門，各藏一架UFO',
+        '2003年：俄美科學家在JINR合成115號元素（鏌）',
+        '2019年：Netflix紀錄片《Bob Lazar: Area 51 & Flying Saucers》使其再度受關注',
+        '科學家聲明：合成的鏌半衰期僅0.65秒，與Lazar描述的穩定燃料完全不符'
+      ],
+      background:'S4基地描述：51區南面24公里，帕普斯湖附近，地下基地，9個機庫門各藏一架UFO。「Sport Model」飛船底部離地1米，無電線無螺絲，一體成型，內部比外部看起來更大。Lazar聲稱UFO使用115號元素通過反重力波扭曲時空飛行。',
+      impact:'Lazar的披露使「51區」成為全球UFO文化的核心符號。他提及的Janet Airlines後來被證實確實存在，政府2013年承認51區時也承認了Janet Airlines。',
+      analysis:'支持者論點：1989年時115號元素尚不存在，他怎能無中生有？反對者論點：學歷和僱用記錄多處存疑，且合成出的鏌與其描述完全不符。',
+      factCheck:{type:'partial',text:'115號元素2003年合成屬實，但其特性與Lazar描述完全不符。S4基地描述無獨立佐證，Lazar學歷核查存疑。Janet Airlines確實存在是最有力的旁證。'}
+    }
+  },
+  {
+    id:'e16',year:'1991年',date:'1991.01',side:'left',cat:'person',catLabel:'關鍵人物',importance:4,
+    title:'TR-3B反重力飛行器：人類的外星逆向工程成果？',titleEn:'TR-3B — Anti-Gravity Craft from Alien Reverse Engineering?',
+    summary:'前空軍機師Edgar Fouche聲稱美國已研發出三角形黑色飛行器TR-3B，利用旋轉水銀電漿產生磁場，可抵銷89%重力。軍方從未承認，主流解釋為B-2隱形轟炸機夜間測試被誤認。',
+    persons:['p_fouche'],
+    relEvents:['e5','e15'],
+    fullDetail:{
+      timeline:[
+        '1990年代初：Edgar Fouche聲稱在Plant 42工廠（帕姆代爾）看到TR-3B的開發',
+        '1998年：Fouche首次公開披露TR-3B的存在',
+        '大量目擊者報告黑色三角形飛行器，特別是在比利時（1989-1990年）',
+        '軍方聲明：無此飛行器在服役或測試',
+        '主流解釋：目擊者看到的是B-2或F-117在夜間測試'
+      ],
+      background:'TR-3B的技術描述：三角形外形，三個角各有一個引擎，中央有一個旋轉水銀電漿室（MFD，磁流體動力學裝置），旋轉產生強磁場，可抵銷89%重力，令飛行器幾乎重量為零。傳說由洛斯阿拉莫斯和桑迪亞國家實驗室聯合開發。',
+      impact:'TR-3B成為UFO研究界最廣泛引用的「人類反重力技術」案例之一。',
+      analysis:'軍方從未承認，主流解釋為常規隱形飛機誤認。但「磁流體動力學」理論本身是真實的物理概念。',
+      factCheck:{type:'unverified',text:'TR-3B純為傳聞，軍方從未承認，無任何官方記錄。目擊的三角形飛行器更可能是B-2或F-117。'}
+    }
+  },
+  {
+    id:'e17',year:'2001–2002年',date:'2001.01',side:'right',cat:'person',catLabel:'關鍵人物',importance:4,
+    title:'Gary McKinnon（Solo）：入侵五角大廈的蘇格蘭駭客',titleEn:'Gary McKinnon — The Scottish Hacker Who Cracked the Pentagon',
+    summary:'英國駭客Gary McKinnon入侵97台美國軍方電腦，聲稱發現「太陽保衛者」太空艦隊清單和被抹除UFO痕跡的衛星圖像。美國要求引渡，英國最終以「人道理由」拒絕。',
+    persons:['p_mckinnon'],
+    relEvents:['e15'],
+    fullDetail:{
+      timeline:[
+        '2001年起：McKinnon在女友姨媽家通過56K Modem展開入侵行動',
+        '入侵97台政府電腦，包括NASA、國防部、空軍等',
+        '在NASA Johnson Space Center找到未處理高解析圖像，疑似見到飛碟',
+        '在Excel檔案中發現「非陸基軍官」名單，列出「艦船」名稱',
+        '2002年3月19日：英國警方突擊搜查McKinnon住所',
+        '2004年開始：美英長達10年法律拉鋸戰',
+        '2012年10月16日：時任英國內政大臣文翠珊以人道理由拒絕引渡，McKinnon獲自由'
+      ],
+      background:'McKinnon的動機是受Steven Greer的Disclosure Project影響，相信美國政府隱藏了UFO和自由能源的資訊。他使用基本IT技能，並非專業駭客。他患有阿斯伯格症，這成為英國拒絕引渡的主要依據之一。',
+      impact:'McKinnon的案件引發全球對政府UFO保密的廣泛討論。「太陽保衛者」（Solar Warden）概念成為UFO界的重要元素。',
+      analysis:'McKinnon入侵屬實，法律案件有完整記錄。「太陽保衛者艦隊名單」是他的個人陳述，無法獨立核實。',
+      factCheck:{type:'partial',text:'McKinnon的入侵行動和法律案件屬實。「太陽保衛者名單」是個人陳述，美國政府從未確認其存在。'}
+    }
+  },
+  {
+    id:'e18',year:'2004年',date:'2004.01',side:'left',cat:'event',catLabel:'重大事件',importance:5,
+    title:'USS尼米茲 Tic-Tac UFO事件',titleEn:'USS Nimitz Tic-Tac UFO Encounter',
+    summary:'前海軍F-18指揮官David Fravor在加州海面目擊白色橢圓形UFO，無翼無推進，一分鐘內位移100公里。2017年由TTSA公開影片，2020年美國海軍正式確認，成為最具公信力的軍方UFO目擊案例。',
+    persons:['p_fravor'],
+    relEvents:['e19','e20'],
+    fullDetail:{
+      timeline:[
+        '2004年：USS普林斯頓號SPY-1雷達持續兩週追蹤到海面以下不明物體',
+        'Fravor率F/A-18F超級大黃蜂出動偵察',
+        'Fravor以螺旋形飛近，UFO同步以螺旋形上升迎接',
+        '雙方接近時，UFO瞬間消失，1分鐘後在100公里外的預定地點出現',
+        '2017年12月：TTSA和《紐約時報》公開FLIR影片',
+        '2020年4月：美國海軍正式解密確認三段影片（FLIR/Gimbal/GOFAST）'
+      ],
+      background:'Fravor描述UFO：約14米長，白色，外形像Tic-Tac糖，無翼無尾，無熱排放，在水面和大氣中無縫切換。雷達探測不到，但肉眼清晰可見。有多名機師和雷達操作員共同目擊。',
+      impact:'Tic-Tac事件是2023年UFO聽證會中Fravor作證的核心內容。海軍的正式確認使此事件成為現代UFO討論的重要基礎。',
+      analysis:'這是迄今為止有最多官方記錄支持的UFO目擊事件之一。Fravor本人說：「以美軍現有實力，根本不可能擊落對方。」',
+      factCheck:{type:'verified',text:'美國海軍於2020年正式解密確認三段UFO影片。Fravor的目擊有多名機師和雷達操作員共同見證。是最有記錄支撐的現代UFO事件。'}
+    }
+  },
+  {
+    id:'e19',year:'2007–2017年',date:'2007.01',side:'right',cat:'org',catLabel:'秘密組織',importance:5,
+    title:'AATIP計劃與Luis Elizondo：現代UFO揭密的源頭',titleEn:'AATIP & Luis Elizondo — Origin of Modern UAP Disclosure',
+    summary:'先進航空威脅識別計劃（AATIP）由Luis Elizondo秘密主導，收集數百件軍事UFO個案。2017年Elizondo辭職，在《紐約時報》頭版公開三段軍方UFO影片，觸發現代揭密浪潮。',
+    persons:['p_elizondo','p_reid'],
+    relEvents:['e18','e20','e21'],
+    fullDetail:{
+      timeline:[
+        '2007年：Elizondo調入國防部，加入高度機密的AATIP計劃',
+        '2008年：Elizondo成為AATIP實際負責人',
+        'AATIP由參議員Harry Reid和億萬富翁Robert Bigelow推動，每年獲2200萬美元資助',
+        '2012年：計劃「表面」結束，實際轉入地下繼續運作',
+        '2017年10月：Elizondo因對政府繼續隱瞞真相感失望，正式辭職',
+        '2017年12月16日：《紐約時報》頭版刊登AATIP報道，公開FLIR/Gimbal/GOFAST三段影片',
+        '2020年：美國海軍正式解密三段影片'
+      ],
+      background:'AATIP收集數百條高品質軍事UFO個案，多為戰鬥機機師的目擊和雷達記錄。Elizondo曾關注「皮行者牧場」的異常現象。國防部後來否認Elizondo在AATIP擔任負責人，但被Harry Reid的親筆信和多份內部備忘錄反駁。',
+      impact:'直接導致UAP Task Force和AARO的成立。令AATIP首次在公眾面前曝光。',
+      analysis:'AATIP的存在由前參議員Harry Reid親筆信確認。Elizondo後來在2025年UFO聽證會中繼續作證，確認Legacy Program的存在。',
+      factCheck:{type:'verified',text:'AATIP存在由Harry Reid親筆信確認。三段影片由海軍2020年正式解密。Elizondo的背景有官方記錄，部分細節存爭議。'}
+    }
+  },
+  {
+    id:'e20',year:'2017年10月',date:'2017.10',side:'left',cat:'event',catLabel:'重大事件',importance:4,
+    title:"奧默默（1I/'Oumuamua）：太陽系第一顆星際訪客",titleEn:"1I/'Oumuamua — First Interstellar Object in Our Solar System",
+    summary:'夏威夷Pan-STARRS望遠鏡發現第一顆確認來自太陽系外的天體。雪茄形外觀、非重力加速、無彗尾現象引發Avi Loeb提出「外星探測船」假說。2022年飛出太陽系，全程人類只觀測到兩個半月。',
+    persons:['p_loeb'],
+    relEvents:['e31'],
+    fullDetail:{
+      timeline:[
+        '2017年9月9日：奧默默最接近太陽（此時人類尚未發現它）',
+        '2017年10月14日：最接近地球，距離2400萬公里',
+        '2017年10月19日：Pan-STARRS望遠鏡發現它，此時它已飛過地球5天',
+        '科學家重新分類：第一顆確認的星際天體（1I）',
+        '觀察發現：無彗髮，非重力加速，偏心率1.2',
+        '2022年3月：飛出海王星軌道，正式離開太陽系',
+        '2021年：Avi Loeb出版《地外文明》，提出光帆假說'
+      ],
+      background:'奧默默是夏威夷語，意為「偵察兵」或「第一位訊使」。尺寸估計長100-1000米，最可能400-800米，寬35-80米。表面紅色（有機分子在宇宙射線輻射下變色）。非重力加速謎團至今未有定論。',
+      impact:'奧默默的發現開啟了人類對星際天體的系統性觀測。Avi Loeb的「光帆假說」引發學術界和公眾的廣泛辯論，直接影響了後來對3I/ATLAS的分析框架。',
+      analysis:'Di大個人評估：奧默默比3I/ATLAS更像外星飛船（雪茄形、近90度插入黃道面、V型反彈、無彗尾的非重力加速）。',
+      factCheck:{type:'partial',text:'奧默默的發現和基本天文數據屬實，有同行評審論文。外星光帆假說是Avi Loeb的學術推測，主流天文學界尚未接受，但視為值得研究的可能性。'}
+    }
+  },
+  {
+    id:'e21',year:'2023年7月',date:'2023.07',side:'right',cat:'now',catLabel:'揭密浪潮',importance:5,
+    title:'2023年UFO聽證會：人類史上的突破',titleEn:'2023 U.S. Congressional UFO Hearing — A Historic Breakthrough',
+    summary:'三位前軍方人員在美國國會公開作證。David Grusch在聽證會上使用「non-human biologic」一詞，承認美軍自1940年代起秘密回收UFO及駕駛者遺骸。這是55年來首次國會UFO聽證，具法律責任。',
+    persons:['p_grusch','p_graves','p_fravor','p_elizondo'],
+    relEvents:['e19','e18','e22'],
+    fullDetail:{
+      timeline:[
+        '2023年7月26日：美國眾議院舉行UFO聽證會（55年來第二次）',
+        'David Grusch作證：美軍自1940年代起秘密回收UFO及非人類生命體',
+        'Ryan Graves作證：軍方UFO目擊是「家常便飯」，立方體型UFO無法識別',
+        'David Fravor作證：2004年Tic-Tac事件詳情（見前條）',
+        'Grusch國會答詢中明確回答：確有回收「non-human biologic」',
+        'Grusch的上司事後在LinkedIn指其說謊，但不敢在聽證會上這樣說',
+        '多次申請SCIF（機密閉門會議）被駁回',
+        '2025年：Luis Elizondo在2025年UFO聽證會進一步確認Legacy Program存在'
+      ],
+      background:'David Grusch是前美國政府空軍情報員，UAP Task Force核心成員，2019-2023年擔任情報分析領導，有比很多國防部官員更高的接觸權限。他刻意使用「non-human biologic」而非「alien」，因為UFO駕駛者可能是跨維度生命體而非外星人。',
+      impact:'這是現代UFO揭密運動的最重要里程碑。Grusch的國會作證具法律效力，若撒謊可被起訴，使其陳述的可信度遠高於一般揭密者。',
+      analysis:'此次聽證會的重要性在於：在聽證會上不可說謊的前提下，Grusch明確確認了「非人類生命體」被回收的事實。而其上司不敢在聽證會上反駁，側面支持了Grusch的說法。',
+      factCheck:{type:'verified',text:'聽證會屬實，有完整影片記錄。三位證人的陳述受法律約束。AARO官方報告（2024年）承認數百宗UAP新事件，但稱「無外星人證據」，與Grusch說法形成矛盾。'}
+    }
+  },
+  {
+    id:'e22',year:'2023年6月',date:'2023.06',side:'left',cat:'now',catLabel:'揭密浪潮',importance:4,
+    title:'Ross Coulthart披露：私人公司持有UFO 70年',titleEn:'Ross Coulthart Revelation — Private Firm Held UFO for 70 Years',
+    summary:'澳洲調查記者Ross Coulthart披露，一間美國私人航太公司持有非人類起源的UFO飛行器60至70年，正因面臨法律風險而急於脫手。與David Grusch的聽證會說法高度一致。',
+    persons:['p_coulthart'],
+    relEvents:['e21','e5'],
+    fullDetail:{
+      timeline:[
+        '2023年6月30日：Ross Coulthart接受The Good Trouble Show訪問，首次透露此消息',
+        '聲稱一間美國私人航太公司持有非人類起源的UFO長達60-70年',
+        '公司急於脫手：法律、國家安全和合約問題構成龐大風險',
+        'Coulthart沒有公開公司名稱，UFO界推測最可能是洛克希德·馬丁或波音',
+        '2023年7月：David Grusch在聽證會中的說法與此高度一致'
+      ],
+      background:'Ross Coulthart是澳洲著名調查記者，專門調查UFO、國家安全和政府欺騙行為，有嚴格的調查方法論。他的披露涉及複雜的法律分析：私人公司持有全人類資產超過70年，可能觸犯情報授權法案、證券欺詐（隱瞞重大資產）、反壟斷法（以外星科技獲不公平優勢）、以及洗黑錢（繞過國會的秘密資金）。',
+      impact:'Coulthart的披露為Grusch聽證會說法提供了獨立佐證。法律分析框架使公眾首次清楚了解為何私人公司現在想「脫手」。',
+      analysis:'用國寶比喻：政府官員私下將國寶借給私人朋友研究，現在國會（主人的受託人）開始查帳，當年的好處變成了犯罪證據。',
+      factCheck:{type:'partial',text:'Coulthart的訪問屬實，他是具公信力的調查記者。具體公司名稱和UFO細節為其消息來源的陳述，無法獨立核實。與Grusch的說法高度一致。'}
+    }
+  },
+  {
+    id:'e23',year:'2025年7月',date:'2025.07',side:'right',cat:'event',catLabel:'重大事件',importance:4,
+    title:'3I/ATLAS：太陽系第三顆星際物體，外星飛船假說',titleEn:'3I/ATLAS — Third Interstellar Object & Alien Craft Hypothesis',
+    summary:'智利ATLAS系統發現第三顆星際物體，直徑最高達5.6公里（曼哈頓大小）。Avi Loeb提出外星飛船假說：軌道精準對齊黃道面（機率0.2%），近日點躲在太陽後方（機率0.005%）。',
+    persons:['p_loeb','p_corbell'],
+    relEvents:['e20'],
+    fullDetail:{
+      timeline:[
+        '2025年1月18日：Jeremy Corbell聲稱收到消息，政府計劃公佈一個「非石頭」的外太空物體',
+        '2025年7月1日：智利ATLAS系統發現3I/ATLAS，已進入內太陽系',
+        '2025年7月16日：Avi Loeb發表論文，提出外星飛船假說',
+        '2025年10月3日：3I/ATLAS最接近火星（3000萬公里），火星探測器拍攝影像，確認有彗尾',
+        '2025年10月29日：近日點，躲在太陽後方，地球無法直接觀測（合日）',
+        '2025年11月8-9日：發現7個噴流結構（5個向後+2個指向太陽）',
+        '2025年12月19日：最接近地球（2.7億公里），但確認不構成威脅',
+        '2026年3月：預計接近木星，木星探測器或有新影像'
+      ],
+      background:'3I/ATLAS基本數據：偏心率6.14（最高），進入速度58公里/秒，近日點加速至68公里/秒，質量33-330億噸，估計年齡76-140億年（比太陽系更古老）。Loeb分析：軌道對齊黃道面機率0.2%，路徑精準經過金星、火星、木星，近日點躲在太陽後方機率0.005%。',
+      impact:'Loeb的外星飛船假說引發全球廣泛討論。Corbell的「預言」（早於發現6個月）增加了神秘性。政府普遍沉默（不只美國，所有國家的太空總署均未發表明確聲明）。',
+      analysis:'Loeb本人承認：非自然起源機率只有3%-40%。火星探測器確認有彗尾，符合彗星特徵。Di大評估：奧默默比3I/ATLAS更像外星飛船，但3I/ATLAS的軌道異常值得持續關注。',
+      factCheck:{type:'partial',text:'3I/ATLAS的發現和天文數據屬實，有同行評審論文。外星飛船假說是Loeb的學術推測，主流天文學界認為是彗星。Corbell的預言確實存在，但有多種解釋。'}
+    }
+  },
+  {
+    id:'e24',year:'2026年2月',date:'2026.02',side:'left',cat:'now',catLabel:'揭密浪潮',importance:5,
+    title:'奧巴馬「外星人是真實的」：揭密浪潮引爆點',titleEn:"Obama 'Aliens Are Real' — The Disclosure Trigger",
+    summary:'奧巴馬在播客中說「外星人是真實的」（隨後澄清是統計概率），特朗普藉此指其洩密並宣布解密所有UFO文件。五角大廈於2026年5月8日發布首批解密UAP文件。aliens.gov網址已由美國政府申請。',
+    persons:['p_obama','p_trump'],
+    relEvents:['e21','e22','e25'],
+    fullDetail:{
+      timeline:[
+        '2026年2月14日：奧巴馬在Brian Tyler Cohen播客「閃問環節」稱外星人「是真實的，但我沒見過」',
+        '2026年2月15-16日：奧巴馬在Instagram澄清：「我在任期間沒有見過外星人接觸地球的證據」',
+        '2026年2月19日：特朗普在Air Force One指奧巴馬「洩露機密」',
+        '2026年2月19日晚：特朗普在Truth Social宣布指示多個部門「開始識別和發布」UFO相關文件',
+        'war.gov/ufo 網站上線，負責協調多機構解密工作',
+        '2026年5月8日：五角大廈發布首批解密UAP文件（1947-1968年目擊報告）',
+        '承諾每隔數週在war.gov/ufo滾動更新'
+      ],
+      background:'特朗普的解密指令沒有設定60天期限（早前文字稿的描述有誤）。奧巴馬的說法只是統計概率表述，被媒體誇大為「承認外星人存在」。五角大廈首批文件包含1947-1968年的目擊報告，舊版FBI文件減少了塗黑部分。',
+      impact:'批評者認為此舉是政治轉移視線（愛潑斯坦、關稅問題）。NASA局長：「不預期有新的啟示」。支持者認為這是真正的軟揭密策略，讓大眾逐步適應。',
+      analysis:'Di大評估：特朗普的做法類似JFK文件和愛潑斯坦文件解密——公開表面那一層，深層核心資料仍然無法被公開。7月揭密日是否成真，現時判斷為50/50。',
+      factCheck:{type:'verified',text:'奧巴馬訪問、特朗普Truth Social帖文、war.gov/ufo網站、五角大廈首批文件發布均屬實，有完整記錄。奧巴馬的說法被誇大演繹。'}
+    }
+  },
+  {
+    id:'e25',year:'2026年2月至今',date:'2026.03',side:'right',cat:'now',catLabel:'揭密浪潮',importance:5,
+    title:'11名科學家失蹤/死亡案：國家安全危機',titleEn:'11 Scientists Missing / Dead — National Security Crisis',
+    summary:'2022年起11名從事核能及航太研究的科學家相繼死亡或失蹤。McCasland將軍失蹤前正被國會準備聯絡，FBI介入調查，眾議院監察委員會正式向國防部要求簡報。但部分案件有明確解釋。',
+    persons:['p_mccasland','p_eskridge','p_hicks','p_maiwald','p_loureiro','p_grillmair','p_garcia','p_thomas','p_chavez','p_casias','p_reza'],
+    relEvents:['e21','e24'],
+    fullDetail:{
+      timeline:[
+        '2022年6月11日：Amy Eskridge（等離子物理學家）被發現死亡，官稱自殺，但她此前錄影稱「若我自殺那一定不是真的」',
+        '2023年7月30日：Michael David Hicks（NASA JPL），死因無可疑（心臟病）',
+        '2024年7月4日：Frank Maiwald（NASA JPL），死因未公開，NASA無悼念聲明',
+        '2025年5月4日：Anthony Chavez（洛斯阿拉莫斯）失蹤，留下電話錢包，車停門口',
+        '2025年6月22日：Monica Jacinto-Reza（航太工程師）行山時失蹤，同伴相距10米一轉身不見',
+        '2025年6月26日：Melissa Casias（洛斯阿拉莫斯）在518號公路失蹤，電話被遠端清除',
+        '2025年8月28日：Steven Garcia失蹤，只帶走一把槍',
+        '2025年12月12日：Jason Thomas失蹤，2026年3月17日發現屍體，死因不明',
+        '2025年12月15日：Nuno Loureiro（MIT等離子中心主任）在家中被槍殺，有個人恩怨動機',
+        '2026年2月16日：Carl Grillmair（Caltech天文物理學家）在家中被槍殺',
+        '2026年2月27日：Neil McCasland（退役空軍少將）失蹤，至今下落不明'
+      ],
+      background:'11人共通點：超過一半與「科研金三角」相關（洛斯阿拉莫斯、桑迪亞、JPL、柯特蘭空軍基地、臭鼬工廠）。學術領域高度互補，合起來是一個完整的UFO技術開發團隊。幾乎所有失蹤者都留下GPS設備，表明他們意識到被追蹤的危險。',
+      impact:'特朗普表示重視，白宮與FBI合作審視案件。眾議院監察委員會向FBI局長和國防部長要求正式簡報。',
+      analysis:'部分案件有明確解釋（Loureiro被有個人恩怨的人槍殺，Hicks死於心臟病）。「系統性清除以阻止作證」是推測，目前官方未確認組織性行動。McCasland妻子否認其有外星人特殊知識。',
+      factCheck:{type:'partial',text:'11人案件屬實，國會介入屬實，FBI調查屬實。「系統性清除」是推測，目前官方未確認組織性行動。部分案件有明確解釋。'}
+    }
+  }
+];
+
+// ════════════════════════════════════
+// PERSONS DATA
+// ════════════════════════════════════
+const PERSONS = [
+  {
+    id:'p_arnold',name:'Kenneth Arnold',nameEn:'Kenneth Arnold',
+    role:'私人飛行員・UFO目擊者',born:'1915年3月29日',died:'1984年1月16日',
+    nationality:'美國',cat:'military',
+    avatar:'KA',
+    bio:'商業飛行員兼救火機駕駛員。1947年6月24日在喀斯開山脈目擊9架碟形飛行物，向記者說出"flying saucers"，無意間創造了「飛碟」一詞，成為現代UFO文化的起點。此後他積極參與UFO研究，是早期最重要的目擊證人之一。',
+    events:['e2'],
+    relPersons:['p_ramey'],
+    notes:'「飛碟」一詞的非刻意創造者。他的描述（速度、飛行方式）至今仍被研究者分析。'
+  },
+  {
+    id:'p_truman',name:'哈里·杜魯門',nameEn:'Harry S. Truman',
+    role:'美國第33任總統（1945-1953）',born:'1884年5月8日',died:'1972年12月26日',
+    nationality:'美國',cat:'military',
+    avatar:'HT',
+    bio:'美國第33任總統，任內發生了羅茲威爾事件（1947年）和華盛頓UFO事件（1952年）。傳說他創立了MJ-12組織，也曾下令向UFO開火（但從未成功）。他是第一個直接面對外星人議題的美國總統。',
+    events:['e5','e7'],
+    relPersons:['p_einstein','p_ramey','p_forrestal'],
+    notes:'杜魯門對UFO事件的強烈反應（創立MJ-12、下令開火）暗示他親眼見過或知道1947年發生了什麼。'
+  },
+  {
+    id:'p_forrestal',name:'詹姆斯·福雷斯特爾',nameEn:'James Forrestal',
+    role:'美國首任國防部長・MJ-12成員',born:'1892年2月15日',died:'1949年5月22日',
+    nationality:'美國',cat:'military',
+    avatar:'JF',
+    bio:'美國首任國防部長，第一代MJ-12成員。因主張向公眾公開外星人資訊，遭MJ-12其他成員和杜魯門總統強烈反對，被以「精神病」為由免職，送往國家海軍醫療中心。1949年5月22日在醫療中心三樓屋頂被發現死亡，官稱「自殺」，被視為第一個因外星人秘密而遭MJ-12「清除」的重要政治人物。',
+    events:['e5'],
+    relPersons:['p_truman'],
+    notes:'死亡真相至今存疑，是UFO歷史上最早的「神秘死亡」案例之一。'
+  },
+  {
+    id:'p_ramey',name:'羅傑·雷米',nameEn:'Roger Ramey',
+    role:'美國空軍准將',born:'1903年',died:'1963年',
+    nationality:'美國',cat:'military',
+    avatar:'RR',
+    bio:'美國陸軍航空隊第八航空軍指揮官。1947年在羅茲威爾事件中召開記者會，展示「氣象氣球」碎片，但手持一封信件（近年高清復刻後疑似提及「飛行器」和「受害者」）。1952年再次代表軍方解釋華盛頓UFO事件，聲稱是「天文現象」。',
+    events:['e3','e7'],
+    relPersons:['p_truman','p_arnold'],
+    notes:'同一位將軍在兩次最重要的UFO公開事件中都代表軍方發言，均以否認收場。'
+  },
+  {
+    id:'p_twining',name:'納森·特溫寧',nameEn:'Nathan Twining',
+    role:'美國空軍中將',born:'1897年10月11日',died:'1982年3月29日',
+    nationality:'美國',cat:'military',
+    avatar:'NT',
+    bio:'美國空軍中將，航空物資司令部指揮官。1947年9月21日簽署Twining備忘錄——美國官方第一份確認UFO現象「真實存在」的系統性評估文件。備忘錄中指出UFO性能遠超當時任何已知國家的航空技術，建議成立專門調查部門。',
+    events:['e4'],
+    relPersons:[],
+    notes:'Twining備忘錄是UFO研究中最重要的真實歷史文件之一，已解密可查閱。'
+  },
+  {
+    id:'p_eisenhower',name:'德懷特·艾森豪威爾',nameEn:'Dwight D. Eisenhower',
+    role:'美國第34任總統（1953-1961）',born:'1890年10月14日',died:'1969年3月28日',
+    nationality:'美國',cat:'military',
+    avatar:'DE',
+    bio:'二戰英雄，美國第34任總統。傳說曾於1954年2月秘密與兩種外星人會面，最終與灰人型外星人簽訂條約（允許基因採集換外星科技）。他成立了51區（1955年），但後來因允許Rockefeller加入MJ-12而使自己逐漸失去對地外文明事務的控制。退任演說公開警告「軍工複合體的崛起」。',
+    events:['e9','e10'],
+    relPersons:['p_rockefeller','p_kennedy'],
+    notes:'晚年艾森豪曾威脅要動用軍隊接管S4基地，顯示他深知被MJ-12架空的困境。退任演說被視為他對失去控制的公開抗議。'
+  },
+  {
+    id:'p_rockefeller',name:'尼爾遜·洛克菲勒',nameEn:'Nelson Rockefeller',
+    role:'MJ-12成員・政府諮詢委員會主席',born:'1908年7月8日',died:'1979年1月26日',
+    nationality:'美國',cat:'military',
+    avatar:'NR',
+    bio:'洛克菲勒家族成員，石油財閥。1953-59年擔任美國政府組織諮詢委員會主席，1954-55年出任總統冷戰戰略特別助理。被引入MJ-12後，推動私人機構參與，使軍工複合體崛起，令總統逐漸失去對地外文明事務的控制。傳說洛克菲勒家族是光明會13個家族之一。',
+    events:['e5','e10'],
+    relPersons:['p_eisenhower'],
+    notes:'Rockefeller的加入被艾森豪晚年視為最大的政策錯誤之一。'
+  },
+  {
+    id:'p_kennedy',name:'約翰·甘迺迪',nameEn:'John F. Kennedy',
+    role:'美國第35任總統（1961-1963）',born:'1917年5月29日',died:'1963年11月22日',
+    nationality:'美國',cat:'military',
+    avatar:'JK',
+    bio:'美國第35任總統。上任後試圖改革MJ-12，要求總統可以監督其運作。向MJ-12發出最後通牒：若繼續封鎖UFO資訊，將向美國國民揭露外星人的存在。1963年11月22日在達拉斯遇刺，被視為繼Forrestal後第二個因外星人秘密而遭「清除」的重要政治人物。',
+    events:['e11'],
+    relPersons:['p_eisenhower','p_rockefeller'],
+    notes:'甘迺迪JFK文件於2026年由特朗普政府部分解密，但「MJ-12主謀」說法仍無直接證據。'
+  },
+  {
+    id:'p_einstein',name:'阿爾伯特·愛因斯坦',nameEn:'Albert Einstein',
+    role:'理論物理學家・MJ-12特赦委員會顧問',born:'1879年3月14日',died:'1955年4月18日',
+    nationality:'美國（德裔）',cat:'scientist',
+    avatar:'AE',
+    bio:'20世紀最偉大的物理學家，相對論的創立者。在UFO陰謀論中，他被列為MJ-12特赦委員會的顧問之一。傳說杜魯門在1952年華盛頓UFO事件中曾致電愛因斯坦諮詢，後者建議「絕對不要開火，否則後果不堪設想」，但杜魯門沒有聽從。',
+    events:['e7'],
+    relPersons:['p_truman'],
+    notes:'愛因斯坦被列入MJ-12顧問是陰謀論說法，無官方確認。他建議不開火的傳聞是廣泛流傳的UFO民間故事。'
+  },
+  {
+    id:'p_ebe1',name:'EBE 1號（外星人艾羅）',nameEn:'EBE-1 / Aaro',
+    role:'賽伯星人・羅茲威爾唯一生還外星人',born:'未知',died:'1952年',
+    nationality:'賽伯星（傳說）',cat:'scientist',
+    avatar:'E1',
+    bio:'1947年羅茲威爾事件中唯一生還的外星人，被美軍帶到18號機庫搶救。在Project Serpo中被稱為EBE1號，在外星人艾羅故事中被稱為「艾羅」。通過心靈感應與護士麥克艾羅伊溝通，學會英語後向人類揭露外星知識，包括UFO構造和母星位置。死前向母星發出六條訊息，直接引發1952年華盛頓UFO事件。',
+    events:['e6','e3','e7'],
+    relPersons:['p_nurse'],
+    notes:'EBE1號是所有最重要UFO陰謀論的核心節點，無法核實存在，但在敘事上連結了羅茲威爾、華盛頓UFO事件和Project Serpo。'
+  },
+  {
+    id:'p_nurse',name:'麥克艾羅伊護士',nameEn:'Nurse McElroy',
+    role:'美軍護士・與EBE1號的第一個溝通者',born:'未知',died:'未知',
+    nationality:'美國',cat:'military',
+    avatar:'NM',
+    bio:'在外星人艾羅故事中，她是1947年被召去處理羅茲威爾「飛機墜毀」的軍方護士。在為受傷的外星人（艾羅）處理傷口時，腦中突然出現外星人通過心靈感應傳來的聲音。她是第一個也是唯一能與外星人溝通的人類，被軍方委派每天14小時朗讀書籍給外星人聽。後來外星人學會英語，不再需要她作翻譯。',
+    events:['e6'],
+    relPersons:['p_ebe1'],
+    notes:'她的真實姓名從未被公開，「麥克艾羅伊」是陰謀論故事中使用的稱謂。'
+  },
+  {
+    id:'p_brazel',name:'W.W. Brazel（Mac Brazel）',nameEn:'Mac Brazel',
+    role:'牧場主人・羅茲威爾碎片發現者',born:'約1899年',died:'1963年',
+    nationality:'美國',cat:'military',
+    avatar:'MB',
+    bio:'新墨西哥州Corona地區的牧場主人。1947年7月5日在巡視農場時發現大量不明金屬碎片散落在400米範圍內。他將碎片帶去羅茲威爾讓別人識別，最終導致空軍到場調查。後來被軍方帶走數日，返回後據稱改口稱只是普通碎片。是羅茲威爾事件的第一個地面目擊者。',
+    events:['e3'],
+    relPersons:['p_marcel'],
+    notes:'Brazel後來改變說法的原因不明，可能是受軍方壓力，也可能是原本說法就是誇大。'
+  },
+  {
+    id:'p_marcel',name:'傑西·馬塞爾',nameEn:'Jesse Marcel',
+    role:'羅茲威爾空軍基地情報官',born:'1907年',died:'1986年',
+    nationality:'美國',cat:'military',
+    avatar:'JM',
+    bio:'美國陸軍航空隊羅茲威爾空軍基地的情報官，曾在509核武部隊服役。1947年7月7日被派去農場視察Brazel發現的碎片，他確認這些碎片不屬於任何已知飛行器。他帶了部分碎片回家給11歲的兒子看。1978年接受作家訪問時透露，雷米將軍當年是要他講大話的，他相信碎片來自外星。',
+    events:['e3'],
+    relPersons:['p_brazel','p_ramey'],
+    notes:'Marcel的1978年訪問是羅茲威爾故事重新興起的關鍵起點。他是第一個在公開場合質疑官方說法的軍方人員。'
+  },
+  {
+    id:'p_hynek',name:'J. Allen Hynek',nameEn:'J. Allen Hynek',
+    role:'天文學家・Project Blue Book科學顧問',born:'1910年5月1日',died:'1986年4月27日',
+    nationality:'美國',cat:'scientist',
+    avatar:'JH',
+    bio:'美國天文學家，西北大學天文學教授。最初作為Project Blue Book的科學顧問，是徹底的懷疑論者，將大多數UFO個案歸類為天文現象。但後期態度轉變，發現越來越多個案無法以科學解釋，1969年後成為獨立UFO研究者。他創立的「近距離接觸分類法」（第一至第五類接觸）成為後世UFO研究的標準框架，史匹堡《第三類接觸》片名直接來自他的分類法。',
+    events:['e8','e13'],
+    relPersons:[],
+    notes:'從政府聘請的懷疑論者轉變為獨立UFO研究者，他的轉變本身就是值得記錄的歷史。'
+  },
+  {
+    id:'p_lazar',name:'Bob Lazar',nameEn:'Robert Scott Lazar',
+    role:'物理學家（自稱）・S4基地吹哨者',born:'1959年1月26日',died:'（在世）',
+    nationality:'美國',cat:'whistleblower',
+    avatar:'BL',
+    bio:'自稱曾在洛斯阿拉莫斯國家實驗室工作的物理學家，通過EG&G公司取得Q Clearance（能源部最高機密許可），被分配至51區南面S4基地負責逆向工程外星飛船推進系統。1989年在KLAS電視台以化名「Dennis」披露S4基地和九架外星飛碟的存在，提及UFO使用「115號元素」——當時此元素尚不存在。2003年鏌被合成，但其特性與Lazar描述完全不符。2019年Netflix紀錄片使其再度受關注。',
+    events:['e15'],
+    relPersons:['p_knapp','p_teller'],
+    notes:'Lazar是UFO界最具爭議的人物之一：他的學歷和僱用記錄多處存疑，但他提及的Janet Airlines確實存在，部分細節後來被旁證。'
+  },
+  {
+    id:'p_knapp',name:'George Knapp',nameEn:'George Knapp',
+    role:'調查記者・「UFO記者界的教父」',born:'1952年',died:'（在世）',
+    nationality:'美國',cat:'journalist',
+    avatar:'GK',
+    bio:'拉斯維加斯KLAS電視台資深調查記者，被譽為「UFO記者界的教父」。1989年首次訪問Bob Lazar，是最早期系統性披露51區和Bob Lazar故事的記者。他的調查包括美國政府隱瞞UFO真相的一系列報道。後來持續在UFO領域發揮影響力，採訪過多位重要的吹哨者。',
+    events:['e15'],
+    relPersons:['p_lazar'],
+    notes:'如果沒有George Knapp，Bob Lazar的故事可能永遠不會被公眾知道。他的1989年訪問系列是UFO研究史上最重要的媒體事件之一。'
+  },
+  {
+    id:'p_teller',name:'愛德華·特勒',nameEn:'Edward Teller',
+    role:'核物理學家・「氫彈之父」',born:'1908年1月15日',died:'2003年9月9日',
+    nationality:'美國（匈牙利裔）',cat:'scientist',
+    avatar:'ET',
+    bio:'「氫彈之父」，美國著名核物理學家，曼哈頓計劃的核心成員，後來倡導建立勞倫斯利佛摩國家實驗室。在UFO陰謀論中，他在洛斯阿拉莫斯演講時偶然與Bob Lazar相識，後來幫助Lazar寫求職信，間接促成Lazar進入EG&G公司，最終被派往S4基地。',
+    events:['e15'],
+    relPersons:['p_lazar'],
+    notes:'Teller在UFO故事中是無意識地幫助了Lazar進入秘密計劃，他本人是否知道S4基地的情況不得而知。'
+  },
+  {
+    id:'p_mckinnon',name:'Gary McKinnon',nameEn:'Gary McKinnon',
+    role:'電腦系統管理員・「史上最大軍事入侵」駭客',born:'1966年2月10日',died:'（在世）',
+    nationality:'英國（蘇格蘭）',cat:'whistleblower',
+    avatar:'GM',
+    bio:'英國電腦系統管理員，以「Solo」為網名。受Steven Greer的Disclosure Project影響，相信美國政府隱藏UFO和自由能源的資訊。2001-2002年間入侵97台美國軍方電腦，包括NASA、國防部、空軍等。聲稱發現「太陽保衛者」太空艦隊清單和被抹除UFO痕跡的衛星圖像。患有阿斯伯格症，美國要求引渡，英國以人道理由拒絕，2012年獲自由。',
+    events:['e17'],
+    relPersons:['p_greer'],
+    notes:'McKinnon的動機不是破壞，而是尋找真相。他用的是基本IT工具，美國軍方系統當時安全意識極差（大量電腦無密碼保護）。'
+  },
+  {
+    id:'p_fravor',name:'大衛·弗雷佛',nameEn:'David Fravor',
+    role:'前美國海軍F-18指揮官・Tic-Tac事件目擊者',born:'約1963年',died:'（在世）',
+    nationality:'美國',cat:'military',
+    avatar:'DF',
+    bio:'前美國海軍F/A-18F超級大黃蜂指揮官（Commander）。2004年在加州海面目擊Tic-Tac型UFO，一分鐘內位移100公里，無翼無推進，無熱排放，在水面和大氣中無縫切換。他是2023年UFO聽證會三位作證者之一，陳述受法律約束。明確表示：「以美軍現有實力，根本不可能擊落對方。」',
+    events:['e18','e21'],
+    relPersons:['p_graves','p_grusch'],
+    notes:'Fravor是迄今為止最具公信力的UFO目擊者之一，擁有豐富的飛行經驗，並在法律約束下在國會作證。'
+  },
+  {
+    id:'p_graves',name:'萊恩·格雷夫斯',nameEn:'Ryan Graves',
+    role:'前美國空軍機師・飛行器識別專家',born:'約1983年',died:'（在世）',
+    nationality:'美國',cat:'military',
+    avatar:'RG',
+    bio:'前美國空軍機師，同時也是飛行器識別專家，職責是辨認不同飛行器。曾目擊50至100米長的立方體加半透明球體型UFO，可干擾雷達。他在職業生涯中從未見過任何國家擁有立方體形狀的飛行器。是2023年UFO聽證會三位作證者之一，指出軍方UFO目擊是「家常便飯」，但因污名化問題大多數飛行員選擇不上報。',
+    events:['e21'],
+    relPersons:['p_fravor','p_grusch'],
+    notes:'Graves的識別專家背景使他的證詞特別有分量——他比任何人都更清楚那些飛行器不屬於已知類型。'
+  },
+  {
+    id:'p_grusch',name:'大衛·格魯施',nameEn:'David Grusch',
+    role:'前美國空軍情報官・UAP Task Force核心成員',born:'約1986年',died:'（在世）',
+    nationality:'美國',cat:'whistleblower',
+    avatar:'DG',
+    bio:'前美國政府空軍情報員，UAP Task Force核心成員，2019-2023年擔任情報分析領導，擁有比很多國防部官員更高的接觸權限。2023年UFO聽證會中，他在具有法律約束力的情況下明確表示美軍自1940年代起秘密回收UFO及「non-human biologic」（非人類生命體）。他故意使用這個詞而非「alien」，因為UFO駕駛者可能是跨維度生命體。其上司事後在LinkedIn指其說謊，但不敢在聽證會上說，側面支持了他的陳述。',
+    events:['e21','e22'],
+    relPersons:['p_fravor','p_graves','p_elizondo'],
+    notes:'在聽證會上說謊可被起訴，使Grusch的陳述具有特別的可信度。他是現代UFO揭密運動的核心人物。'
+  },
+  {
+    id:'p_elizondo',name:'路易斯·伊利桑多',nameEn:'Luis Elizondo',
+    role:'前美國國防部官員・AATIP計劃負責人',born:'約1976年',died:'（在世）',
+    nationality:'美國（古巴裔）',cat:'whistleblower',
+    avatar:'LE',
+    bio:'前美國陸軍反情報特工，曾在阿富汗和伊拉克執行任務。2007年調入國防部，2008年起成為AATIP（先進航空威脅識別計劃）實際負責人。2017年因對政府繼續隱瞞UFO真相感到失望辭職，同年12月在《紐約時報》頭版公開三段軍方UFO影片，觸發現代揭密浪潮。多次暗示政府和軍工企業持有非人類起源的飛行器殘骸並進行逆向工程。2025年UFO聽證會中繼續作證，確認Legacy Program存在。',
+    events:['e19','e21'],
+    relPersons:['p_grusch','p_reid','p_dealonge'],
+    notes:'Elizondo是現代UFO揭密運動最具公信力的核心人物之一，因為他在有官方記錄的職位上接觸到一手證據。'
+  },
+  {
+    id:'p_reid',name:'哈里·瑞德',nameEn:'Harry Reid',
+    role:'前美國參議員（內華達州）',born:'1939年12月2日',died:'2021年12月28日',
+    nationality:'美國',cat:'military',
+    avatar:'HR',
+    bio:'前美國參議院多數黨領袖，內華達州民主黨參議員。他是AATIP計劃的主要推動者之一，與億萬富翁Robert Bigelow共同推動這個秘密計劃，每年獲得2200萬美元資助。後來他通過親筆信確認了Luis Elizondo在AATIP中的領導角色，反駁了國防部的否認。是美國政府內部少數公開支持調查UFO的重要人士。',
+    events:['e19'],
+    relPersons:['p_elizondo'],
+    notes:'Reid是少有的願意公開支持UFO研究的高層政治人物，他的親筆信成為Elizondo在AATIP角色的重要佐證。'
+  },
+  {
+    id:'p_dealonge',name:'湯姆·迪隆',nameEn:'Tom DeLonge',
+    role:'Blink-182主唱・TTSA創辦人',born:'1975年12月13日',died:'（在世）',
+    nationality:'美國',cat:'journalist',
+    avatar:'TD',
+    bio:'知名樂隊Blink-182主唱兼吉他手。2017年創辦To the Stars Academy（TTSA），招攬前CIA、前國防部和洛馬公司高層，成為現代UFO揭密運動的重要推手。幫助Elizondo公開三段軍方UFO影片（FLIR/Gimbal/GOFAST），直接推動了2023年UFO聽證會的發生。2022年宣布回歸Blink-182，讓位給Elizondo。TTSA成員包括後來失蹤的Neil McCasland。',
+    events:['e19'],
+    relPersons:['p_elizondo','p_mccasland'],
+    notes:'對於DeLonge是真正的揭密者還是政府受控資產，UFO界至今存在爭議。但他推動UFO議題進入主流媒體的貢獻是客觀的。'
+  },
+  {
+    id:'p_loeb',name:'阿維·洛布',nameEn:'Avi Loeb',
+    role:'哈佛大學天文學家・加利略計劃創始人',born:'1962年2月29日',died:'（在世）',
+    nationality:'以色列裔美國人',cat:'scientist',
+    avatar:'AL',
+    bio:'哈佛大學天文系前主任（任期9年），研究範圍涵蓋黑洞、第一代行星、宇宙未來和地外生命。2021年出版《地外文明》，提出奧默默可能是外星文明「光帆」的假說。2025年就3I/ATLAS發表論文，提出外星飛船假說（自認非自然起源機率3%-40%）。創辦加利略計劃，用AI訓練系統監控天空篩選UFO影像，並承諾發現後直接公開而非交給政府。',
+    events:['e20','e23'],
+    relPersons:['p_corbell'],
+    notes:'Loeb的外星探測船假說在學術界頗具爭議，但他是少數真正從科學角度認真對待這個可能性的主流科學家。'
+  },
+  {
+    id:'p_corbell',name:'傑里米·科貝爾',nameEn:'Jeremy Corbell',
+    role:'UFO調查紀錄片導演・揭密者',born:'約1978年',died:'（在世）',
+    nationality:'美國',cat:'journalist',
+    avatar:'JC',
+    bio:'美國UFO調查記者兼紀錄片導演，專門製作UFO、UAP和外星技術的調查性紀錄片。2023年UFO聽證會後成為UFO界的重要風頭人物。2025年1月18日（早於3I/ATLAS發現約6個月）稱收到情報：政府計劃公佈一個「非石頭」的外太空物體將會改變人類一切。2024年1月公開中東水母型UFO的17分鐘原始片段。',
+    events:['e23'],
+    relPersons:['p_loeb'],
+    notes:'Corbell的「預言」在3I/ATLAS被發現後廣泛流傳，被視為「一早就知道」的證據，但也有人認為他只是在玩概率遊戲。'
+  },
+  {
+    id:'p_coulthart',name:'羅斯·科爾瑟特',nameEn:'Ross Coulthart',
+    role:'澳洲調查記者・UFO揭密者',born:'約1963年',died:'（在世）',
+    nationality:'澳洲',cat:'journalist',
+    avatar:'RC',
+    bio:'澳洲著名調查記者，以嚴格的調查方法論見稱，專門調查UFO、國家安全和政府欺騙行為。2023年6月披露一間美國私人航太公司持有非人類起源的UFO長達60-70年，正急於脫手，法律風險使其無法繼續持有。他的披露內容與David Grusch的聽證會說法高度一致，被視為互相印證的獨立來源。',
+    events:['e22'],
+    relPersons:['p_grusch'],
+    notes:'Coulthart是UFO界少有的具有傳統調查記者背景的揭密者，其方法論和可信度得到廣泛認可。'
+  },
+  {
+    id:'p_salas',name:'羅伯特·薩拉斯',nameEn:'Robert Salas',
+    role:'前美國空軍核彈發射官・Malmstrom事件目擊者',born:'1940年',died:'（在世）',
+    nationality:'美國',cat:'military',
+    avatar:'RS',
+    bio:'前美國空軍上尉，1964-71年服役，任核彈發射官。1967年3月24日在蒙大拿州Malmstrom空軍基地值班時，目擊UFO盤旋在核彈發射井上方，導致10支洲際彈道核彈瞬間失去備戰狀態。整個過程不到數分鐘。事件發生後，他和同僚被嚴格要求不得對外透露。1996年相關解密文件確認，他才首次公開陳述。',
+    events:['e14'],
+    relPersons:['p_greer'],
+    notes:'Salas的陳述有解密文件部分印證，他強調核彈系統的多重冗餘設計使「電力故障」的解釋完全不可信。'
+  },
+  {
+    id:'p_greer',name:'史蒂文·格里爾',nameEn:'Steven Greer',
+    role:'退休急診醫生・UFO揭密運動領袖',born:'1955年6月28日',died:'（在世）',
+    nationality:'美國',cat:'whistleblower',
+    avatar:'SG',
+    bio:'退休急診醫生，外星智慧研究中心（CSETI）和揭密計劃（Disclosure Project）創始人。8歲時目擊UFO，18歲時有瀕死體驗並聲稱與外星意識連結。1990年代接觸到軍方和情報圈內部人士，發現連當時的總統和CIA局長都無法接觸最高層級的UFO機密。2001年召開轟動全球的Disclosure Project記者會，超過20位來自NASA、軍方、民航界的證人出席。他得到Lawrence Rockefeller的部分資助。',
+    events:['e14'],
+    relPersons:['p_mckinnon','p_salas'],
+    notes:'Greer是UFO揭密運動最具標誌性也最具爭議的人物。他聲稱可以通過冥想主動接觸外星人（第五類接觸），這使他同時被支持者崇拜和批評者嘲笑。'
+  },
+  {
+    id:'p_fouche',name:'埃德加·福奇',nameEn:'Edgar Fouche',
+    role:'前美國空軍機師・TR-3B吹哨者',born:'約1947年',died:'2017年',
+    nationality:'美國',cat:'whistleblower',
+    avatar:'EF',
+    bio:'前美國空軍機師及國防工業承包商，曾在多個機密項目工作。1998年首次公開披露TR-3B（三角形黑色反重力飛行器）的存在，聲稱在Plant 42工廠（帕姆代爾）親眼見過其開發。描述TR-3B使用旋轉水銀電漿產生強磁場，可抵銷89%重力，是人類利用外星逆向工程取得的成果。軍方從未承認，他的說法無法獨立核實。',
+    events:['e16'],
+    relPersons:[],
+    notes:'福奇的描述雖然無法核實，但其技術細節（磁流體動力學）是真實的物理概念。他於2017年去世，UFO界對其說法的評價仍存爭議。'
+  },
+  {
+    id:'p_obama',name:'巴拉克·奧巴馬',nameEn:'Barack Obama',
+    role:'美國第44任總統（2009-2017）',born:'1961年8月4日',died:'（在世）',
+    nationality:'美國',cat:'military',
+    avatar:'BO',
+    bio:'美國第44任總統。2026年2月14日在播客「閃問環節」中被問「外星人是真實的嗎」，他回答「是真實的，但我沒有見過」，引發全球轟動。其後他在Instagram澄清：「我在任期間沒有見過外星人接觸地球的證據，真的沒有！我的說法只是基於宇宙之大，存在生命的統計概率。」特朗普指其洩露機密，觸發了新一輪UFO解密浪潮。',
+    events:['e24'],
+    relPersons:['p_trump'],
+    notes:'奧巴馬的說法被媒體嚴重誇大演繹，他只是表達統計概率，並非承認外星人已來訪地球。特朗普藉此指其「洩密」，邏輯頗為牽強。'
+  },
+  {
+    id:'p_trump',name:'唐納德·特朗普',nameEn:'Donald Trump',
+    role:'美國第45、47任總統',born:'1946年6月14日',died:'（在世）',
+    nationality:'美國',cat:'military',
+    avatar:'DT',
+    bio:'美國第45任（2017-2021）和第47任（2025-）總統。在UFO揭密議題上動作頻繁：2026年2月19日宣布指示多個部門解密UFO相關文件，「戰爭部」（Department of War）設立war.gov/ufo頁面，2026年5月8日發布首批解密UAP文件。此前亦解密了JFK文件和愛潑斯坦文件，被認為是打擊深層政府行動的一部分。',
+    events:['e24','e11'],
+    relPersons:['p_obama'],
+    notes:'特朗普推動UFO解密的動機存在爭議：真正打擊深層政府？還是政治轉移視線？目前判斷為50/50。'
+  },
+  {
+    id:'p_mccasland',name:'威廉·尼爾·麥卡斯林',nameEn:'William Neil McCasland',
+    role:'退役美國空軍少將・「UFO將軍」',born:'1957年',died:'失蹤（2026年）',
+    nationality:'美國',cat:'missing',
+    avatar:'NM',
+    bio:'退役美國空軍少將，前空軍研究實驗室指揮官，同時擔任特別存取計劃監督委員會執行秘書，擁有「全美最高機密」的接觸權限。在Tom DeLonge的TTSA組織中被提及，維基解密的電郵顯示他曾秘密指導DeLonge進行UFO逐步揭露。2026年2月27日（特朗普宣布解密命令翌日）離開阿布奎基家後失蹤，留下電話、眼鏡、Apple Watch，帶走一把.38口徑左輪手槍。FBI和空軍特別調查局出動數百人搜索，至今下落不明。',
+    events:['e25'],
+    relPersons:['p_dealonge','p_grusch'],
+    notes:'McCasland失蹤的時間點（特朗普解密命令翌日）、行為模式（刻意留下所有GPS設備）和背景（掌握核心UFO機密），使他成為11名科學家案中最受關注的案例。'
+  },
+  {
+    id:'p_eskridge',name:'艾米·埃斯克里奇',nameEn:'Amy Eskridge',
+    role:'等離子物理學家・反重力研究者',born:'約1988年',died:'2022年6月11日（官稱自殺）',
+    nationality:'美國',cat:'missing',
+    avatar:'AE2',
+    bio:'34歲等離子物理學家，研究反重力技術和外星科技。死前曾錄製視頻，明確聲稱「如果你看到關於我自殺或意外的報告，那一定不是真的」，並展示疑似受定向能量武器攻擊造成的手部燒傷。她聲稱發現利用特定頻率電磁場抵消物體質量的方法，認為此技術可解決能源危機，不應被軍事化或私有化。NASA曾警告她若胡亂發表研究可能觸犯《發明保密法》。她的研究基於中國科學家李寧（Ning Li）的AC重力場理論。',
+    events:['e25'],
+    relPersons:['p_mccasland'],
+    notes:'Eskridge的案件因她事前錄影聲明而格外引人注目，但官方仍定性為自殺。她提及的李寧博士後來在1999年後神秘從公眾視野消失，並於2021年去世。'
+  },
+  {
+    id:'p_hicks',name:'邁克爾·大衛·希克斯',nameEn:'Michael David Hicks',
+    role:'NASA噴氣推進實驗室研究科學家',born:'約1963年',died:'2023年7月30日',
+    nationality:'美國',cat:'missing',
+    avatar:'MH',
+    bio:'NASA噴氣推進實驗室（JPL）資深研究科學家，曾在JPL工作超過25年，參與DART項目和Deep Space 1任務，專長先進航空動力學和能源傳輸系統。2023年7月30日被發現死亡，即UFO聽證會後數天。官方死因：心臟病，無可疑。隨著2026年科學家集體死亡事件發酵，其案件被重新審視。',
+    events:['e25'],
+    relPersons:['p_maiwald'],
+    notes:'Hicks的死因（心臟病）有官方醫學記錄，是11名科學家中少數有相對明確解釋的案件之一。'
+  },
+  {
+    id:'p_maiwald',name:'弗蘭克·邁瓦爾德',nameEn:'Frank Maiwald',
+    role:'NASA噴氣推進實驗室資深科學家',born:'未知',died:'2024年7月4日',
+    nationality:'美國',cat:'missing',
+    avatar:'FM',
+    bio:'NASA噴氣推進實驗室（JPL）的資深科學家，長期參與多個太空探測任務。2024年7月4日在洛杉磯家中死亡，死因至今未公開，家屬沒有進行公開驗屍。異常之處：當地警方稱無可疑，但NASA反常地沒有發表任何悼念或官方聲明，這對一位長期服務的資深科學家來說極不尋常。',
+    events:['e25'],
+    relPersons:['p_hicks'],
+    notes:'NASA對Maiwald死亡的異常沉默（無官方聲明）被認為是最值得關注的細節之一。'
+  },
+  {
+    id:'p_loureiro',name:'努諾·洛烏雷羅',nameEn:'Nuno Loureiro',
+    role:'MIT等離子科學與核聚變中心主任',born:'約1978年',died:'2025年12月15日',
+    nationality:'葡萄牙裔美國人',cat:'missing',
+    avatar:'NL',
+    bio:'麻省理工學院（MIT）等離子體科學與核聚變中心主任，全球等離子物理學權威。等離子物理是理解UFO推進系統的最核心科學領域。2025年12月15日在家中無故遭到槍殺，送院第二天不治。警方調查顯示行兇者有個人動機（私人恩怨），將案件列為針對性兇殺案。',
+    events:['e25'],
+    relPersons:[],
+    notes:'Loureiro是11人案件中有最明確解釋的之一（個人恩怨槍殺），但其等離子物理專長使他同樣被納入UFO相關科學家的討論範疇。'
+  },
+  {
+    id:'p_grillmair',name:'卡爾·格里爾邁爾',nameEn:'Carl Grillmair',
+    role:'加州理工學院天體物理學家',born:'1959年',died:'2026年2月16日',
+    nationality:'美國',cat:'missing',
+    avatar:'CG',
+    bio:'加州理工學院天體物理學家，曾參與NASA的NEOWISE和NEO Surveyor任務，專長監測銀河系結構和小行星。2026年2月16日在家中無緣無故遭到槍殺，警方列為兇殺案，現場無財物損失，行兇動機不明。其天體物理專長和監測天際任務使他與星際天體（如3I/ATLAS）的研究有所關聯。',
+    events:['e25'],
+    relPersons:[],
+    notes:'Grillmair的死亡發生在McCasland失蹤的11天前，同在新墨西哥州附近，時間點引人注目。'
+  },
+  {
+    id:'p_garcia',name:'史蒂文·加西亞',nameEn:'Steven Garcia',
+    role:'敏感技術研究員・政府承包商',born:'未知',died:'（失蹤）',
+    nationality:'美國',cat:'missing',
+    avatar:'SGA',
+    bio:'在堪薩斯城國家安全校區（位於阿布奎基）工作的政府承包商，研究核能應用和先進材料科學，曾與洛斯阿拉莫斯和桑迪亞國家實驗室有合作關係。2025年8月28日失蹤。他的失蹤模式與McCasland類似：只帶走一把槍，留下所有有GPS功能的電子設備。目前被列為FBI失蹤人口名單高優先處理對象。2026年4月有國會議員查詢其失蹤是否與外國勢力綁架有關。',
+    events:['e25'],
+    relPersons:['p_mccasland'],
+    notes:'Garcia的失蹤模式（帶槍不帶GPS設備）與McCasland高度相似，暗示兩人可能意識到同樣的威脅。'
+  },
+  {
+    id:'p_thomas',name:'傑森·托馬斯',nameEn:'Jason Thomas',
+    role:'製藥公司化學生物學助理主任',born:'未知',died:'失蹤2025年12月12日，遺體發現2026年3月17日',
+    nationality:'美國',cat:'missing',
+    avatar:'JT',
+    bio:'在一間製藥公司擔任化學生物學助理主任，研究複雜的生化系統，是11人中唯一不是物理科學家或航太領域工作的人。2025年12月12日失蹤，2026年3月17日在偏遠地區被發現遺體，死因不明，警方拒絕公開驗屍細節。有人認為他的生化專長可能涉及UFO對人體組織造成的生物性傷害研究。',
+    events:['e25'],
+    relPersons:[],
+    notes:'Thomas是11人中與UFO的直接關聯最不明確的，但其遺體在偏遠地區被發現且死因不明同樣引人關注。'
+  },
+  {
+    id:'p_chavez',name:'安東尼·查韋斯',nameEn:'Anthony Chavez',
+    role:'洛斯阿拉莫斯國家實驗室退休員工',born:'未知',died:'（失蹤）',
+    nationality:'美國',cat:'missing',
+    avatar:'AC',
+    bio:'洛斯阿拉莫斯國家實驗室退休員工，退休前從事高度機密研發。2025年5月4日失蹤，其手提電話、錢包、車匙整齊放在家中桌上，車子停在家門口，家中無任何掙扎痕跡。當地警方搜索數月一無所獲，案件最終不了了之。洛斯阿拉莫斯是曼哈頓計劃發源地，Bob Lazar的UFO逆向工程知識亦來自此處。',
+    events:['e25'],
+    relPersons:['p_mccasland'],
+    notes:'Chavez的失蹤是11人案件中「消失得最乾淨」的之一——沒有任何跡象，車子留在家門口，卻突然人間蒸發。'
+  },
+  {
+    id:'p_casias',name:'梅麗莎·卡西亞斯',nameEn:'Melissa Casias',
+    role:'洛斯阿拉莫斯員工・高級安全許可持有者',born:'未知',died:'（失蹤）',
+    nationality:'美國',cat:'missing',
+    avatar:'MC',
+    bio:'洛斯阿拉莫斯員工，擁有高級安全許可。2025年6月26日在新墨西哥州518號公路行走時突然失蹤。手提電話留在家中，且電話內的資料被遠端清除。當地警方展開大規模搜救，最終找不到其下落，被列為失蹤人口。雖然她本身不是第一線科學家，但其職位允許她接觸到核心機密資料。',
+    events:['e25'],
+    relPersons:['p_garcia'],
+    notes:'電話資料被「遠端清除」的細節特別值得注意——這意味著有人在她失蹤後主動消除了她手機中的資訊。'
+  },
+  {
+    id:'p_reza',name:'莫妮卡·雷薩',nameEn:'Monica Jacinto-Reza',
+    role:'航太工程師・先進火箭推進材料專家',born:'未知',died:'（失蹤）',
+    nationality:'美國',cat:'missing',
+    avatar:'MR',
+    bio:'前Aerojet Rocketdyne航太公司技術研究員，先進火箭推進材料專家，曾發明一種力場超合金，與UFO逆向工程中所需的極限耐熱材料高度相關。2025年6月22日在加州與朋友行山，相距僅10米，朋友一轉身她已不見。事後出動直升機和搜救犬，一無所獲。',
+    events:['e25'],
+    relPersons:[],
+    notes:'Reza的失蹤方式（在同伴10米範圍內瞬間消失）是所有案件中最詭異的，被形容為「人間蒸發」。'
+  }
+];
+
+// ═══════════════════════════════════════
+// CODEX DATA
+// ═══════════════════════════════════════
+const CODEX_CATS = [
+  { id:'org',      icon:'🏛', zh:'組織／計劃',   en:'Organizations & Programs' },
+  { id:'tech',     icon:'⚡', zh:'科技／現象',   en:'Technology & Phenomena' },
+  { id:'place',    icon:'📍', zh:'地點／設施',   en:'Locations & Facilities' },
+  { id:'doc',      icon:'📄', zh:'文件／報告',   en:'Documents & Reports' },
+  { id:'entity',   icon:'👤', zh:'人物稱謂',     en:'Roles & Designations' },
+  { id:'celestial',icon:'🌌', zh:'天體',         en:'Celestial Objects' },
+  { id:'ufo',      icon:'🛸', zh:'UFO類型',      en:'UAP / UFO Types' },
+  { id:'aircraft', icon:'✈️', zh:'戰機型號',     en:'Military Aircraft' },
+  { id:'encounter',icon:'🔭', zh:'接觸分類',     en:'CE Classification' },
+];
+
+const CODEX = [
+  // ─────────────────────────────────────
+  // 組織 / 計劃
+  // ─────────────────────────────────────
+  {id:'c_mj12',cat:'org',zh:'MJ-12 / 幽浮委員會',en:'Majestic 12 / Operation Majestic Twelve',
+   alias:'Operation Majestic, PI-40, Majestic',
+   desc:'杜魯門總統傳說於1947年以行政命令創立的12人秘密委員會，直接向總統負責，獨家管理所有地外文明事務，凌駕美國政府正式體制之上。',
+   detail:'成員包括科學家、軍方高層及CIA局長。設有PI-40外層行動組（約40人）和特赦委員會（包括愛因斯坦、奧本海默）。1953年艾森豪允許Rockefeller加入後，MJ-12逐漸脫離總統控制，演變為深層政府的核心架構。MJ-12文件1984年神秘曝光，FBI調查認定為偽造，但其描述的運作模式與多位吹哨者的說法高度一致。',
+   events:['e5','e9','e10','e11'],relPersons:['p_truman','p_forrestal','p_eisenhower','p_rockefeller','p_kennedy']},
+
+  {id:'c_blueBook',cat:'org',zh:'藍皮書計劃',en:'Project Blue Book (1952–1969)',
+   alias:'Project Sign, Project Grudge',
+   desc:'美國空軍1952–1969年的官方UFO調查計劃，共調查12,618件個案，聲稱90%可用常規現象解釋。',
+   detail:'由J. Allen Hynek擔任科學顧問，後期受政府壓制，重要個案遭隱瞞。前身為Project Sign（1948年，傾向外星假說）和Project Grudge（1949年，強硬否認立場）。1952年後進入「黑暗時代」，連華盛頓UFO事件都被歸類為「可解釋」。Hynek後期批評藍皮書是政治工具而非科學調查，並創立了近距離接觸分類法。',
+   events:['e8'],relPersons:['p_hynek']},
+
+  {id:'c_aatip',cat:'org',zh:'先進航空威脅識別計劃',en:'AATIP — Advanced Aerospace Threat Identification Program',
+   alias:'AAWSAP, Advanced Aerospace, UAP Task Force, AARO',
+   desc:'2007–2012年美國國防部秘密UFO研究計劃，由Luis Elizondo主導，由參議員Harry Reid推動，每年獲資助2,200萬美元。',
+   detail:'前身為AAWSAP（由億萬富翁Robert Bigelow的BAASS公司承包），研究範圍包括超自然現象及皮行者牧場。AATIP收集數百條高品質軍事UAP目擊個案，2012年「表面」結束但實際轉入地下。Elizondo 2017年辭職後公開三段影片，直接觸發後來的UAP Task Force（2020）和AARO（2022）成立。',
+   events:['e19','e21'],relPersons:['p_elizondo','p_reid']},
+
+  {id:'c_ttsa',cat:'org',zh:'星際學院',en:'To the Stars Academy of Arts & Science (TTSA)',
+   alias:'TTSA',
+   desc:'Tom DeLonge於2017年創辦的UFO揭密機構，成員包括前CIA、國防部和洛克希德·馬丁高層。',
+   detail:'招攬了Luis Elizondo、前CIA官員、前國防部官員、洛馬前高管，以及後來失蹤的Neil McCasland。幫助公開三段軍方UFO影片（FLIR/Gimbal/GOFAST），直接推動2023年國會聽證。UFO界對TTSA存在爭議：有觀點認為DeLonge是受政府內部知情者委託，也有觀點認為TTSA是受控資產，目的是將UFO議題娛樂化。',
+   events:['e19'],relPersons:['p_dealonge','p_elizondo','p_mccasland']},
+
+  {id:'c_disclosure',cat:'org',zh:'揭密計劃',en:'Disclosure Project',
+   alias:'CSETI, Center for the Study of Extraterrestrial Intelligence',
+   desc:'Steven Greer創辦的UFO揭密組織，2001年召開轟動全球的記者會，超過20名前NASA、軍方及民航界人士公開作證。',
+   detail:'由Gary McKinnon的入侵動機可見其影響力。Greer聲稱已有政府知情者向他確認UFO真相，並接觸了柯林頓政府的CIA局長詹姆斯·伍爾西。揭密計劃的目標是通過公眾壓力迫使政府公開UFO真相，並聲稱相關能源技術可以解決全球能源危機。',
+   events:['e14'],relPersons:['p_greer','p_mckinnon']},
+
+  {id:'c_galileo',cat:'org',zh:'加利略計劃',en:'Galileo Project',
+   alias:'Harvard Galileo Project',
+   desc:'哈佛大學天文學家Avi Loeb於2021年創辦，以嚴格科學方法搜尋地外技術文明的證據。',
+   detail:'部署全球望遠鏡網絡，用AI分析天空影像，承諾所有發現直接公開而非交給政府。已在太平洋海底打撈出奧默默前身星際隕石碎片，並分析出異常材料成分。對3I/ATLAS持積極追蹤態度，Loeb是第一位正式提出外星飛船假說的主流學術天文學家。',
+   events:['e20','e23'],relPersons:['p_loeb']},
+
+  {id:'c_serpo',cat:'org',zh:'Project Serpo／賽伯星交流計劃',en:'Project Serpo — Interstellar Exchange Program',
+   alias:'Project Crystal Knight',
+   desc:'傳說中1965–1978年間12名美軍人員前往賽伯星居住的外交交流計劃，由EBE1號死前訊息促成。',
+   detail:'12名成員（10男2女）從5萬人中選出，全部孤兒未婚無子女，官方記錄全部刪除改為「戰場陣亡」。帶著40噸地球食物，超光速飛行9個月抵達（賽伯星距地39光年）。住了13年（原訂10年），其間一名成員「308」病逝後遺體被賽伯星人用於複製人體實驗，引發外交危機。1978年僅8人返回，寫下3000頁「紅皮書」。',
+   events:['e12'],relPersons:['p_ebe1']},
+
+  {id:'c_pi40',cat:'org',zh:'PI-40',en:'PI-40 — MJ-12 Outer Action Group',
+   alias:'Majestic Outer Circle',
+   desc:'MJ-12的外層行動組，約40名成員，所有任命需MJ-12批准，負責實際執行地外文明情報蒐集和行動。',
+   detail:'PI-40成員沒有任期（不同於MJ-12的12名核心成員），負責與私人軍工機構的協調聯絡，管理資金流向，以及對外處理可能「洩密」的人員。是MJ-12與現實世界之間的操作層，也是「深層政府」概念的具體化。',
+   events:['e5','e10'],relPersons:['p_rockefeller']},
+
+  {id:'c_egg',cat:'org',zh:'EG&G公司',en:'EG&G — Edgerton, Germeshausen & Grier',
+   alias:'EG&G Special Projects',
+   desc:'為51區提供服務的主要政府承包商，負責51區的日常運作、人員招募及珍妮特航空服務。',
+   detail:'EG&G全名為Edgerton, Germeshausen & Grier，源自三位MIT科學家。除51區外，亦為多個核武試驗場提供服務。Bob Lazar通過EG&G獲得Q Clearance進入S4基地。EG&G後來被URS公司收購，相關合約轉移至其他承包商。',
+   events:['e15'],relPersons:['p_lazar']},
+
+  {id:'c_skinwalker',cat:'org',zh:'皮行者牧場',en:'Skinwalker Ranch (Sherman Ranch)',
+   alias:'Sherman Ranch, UFO Ranch',
+   desc:'猶他州薛爾曼牧場，被認為是北美最多不明現象的地點，包括UFO、牛隻殘害、怪異生物目擊。',
+   detail:'由Robert Bigelow買下後成為AATIP和AAWSAP的研究重點，部署了大量感應儀器。怪象包括：多種形狀UFO頻繁出沒、牲畜神秘死亡（器官精密切除）、不明巨型生物、電磁儀器失靈、人員身體不適、甚至多名研究員聲稱看到「傳送門」。現由Brandon Fugal擁有，拍攝了真人Show《Skinwalker Ranch》。',
+   events:['e19'],relPersons:['p_elizondo']},
+
+  // ─────────────────────────────────────
+  // 科技 / 現象
+  // ─────────────────────────────────────
+  {id:'c_reverseEng',cat:'tech',zh:'逆向工程',en:'Reverse Engineering',
+   alias:'Back-engineering',
+   desc:'拆解外星飛行器以理解並複製其技術的研究過程。多位吹哨者聲稱美軍自1947年羅茲威爾起已在S4等秘密基地進行。',
+   detail:'根據David Grusch和Ross Coulthart的說法，至少一間私人航太公司持有非人類起源的飛行器長達60-70年，並進行逆向工程研究。成果可能包括隱形技術、先進材料科學、甚至反重力推進的初步原理。軍工複合體的崛起被認為與這些研究成果的商業化直接相關。',
+   events:['e3','e5','e9','e15','e21'],relPersons:['p_lazar','p_grusch','p_coulthart']},
+
+  {id:'c_antigrav',cat:'tech',zh:'反重力技術',en:'Anti-Gravity Technology',
+   alias:'Gravity manipulation, gravitics',
+   desc:'抵消或操控重力場的技術，是UAP六大物理特徵之首。Bob Lazar的115號元素引力波、TR-3B的旋轉水銀電漿均是傳說中的人類嘗試。',
+   detail:'Amy Eskridge聲稱發現利用特定頻率電磁場抵消物體質量的方法，基於中國科學家李寧（Ning Li）的AC重力場理論。NASA曾以《發明保密法》警告Eskridge不得公開研究成果。李寧博士本人於1999年後神秘從公眾視野消失，2021年去世，其研究從未發表完整成果。',
+   events:['e15','e16','e25'],relPersons:['p_lazar','p_fouche','p_eskridge']},
+
+  {id:'c_warpBubble',cat:'tech',zh:'曲速氣泡',en:'Warp Bubble / Alcubierre Drive',
+   alias:'Alcubierre metric, space warp',
+   desc:'基於Miguel Alcubierre 1994年提出的廣義相對論解，通過壓縮飛行器前方空間、擴張後方空間來移動。',
+   detail:'飛行器本身不在三維空間中「移動」，而是被空間泡泡包裹著，因此不受慣性限制，可以實現瞬間加速和直角轉彎。解釋了UFO為何無視慣性、影像模糊（時空曲率造成光線折射）以及跨波段隱形（曲速氣泡吸收部分電磁波）。理論上需要負質量物質驅動，目前人類無法工程實現。',
+   events:['e18'],relPersons:[]},
+
+  {id:'c_zpe',cat:'tech',zh:'零點能',en:'Zero-Point Energy (ZPE)',
+   alias:'Vacuum energy, free energy',
+   desc:'量子場論中真空狀態的最低能量，即使在絕對零度下仍存在。被認為是UFO的能源來源。',
+   detail:'若能提取零點能，將顛覆整個依賴能源稀缺性的全球金融和石油體系。分析師Helen McCaw警告，若證實外星能源（零點能）存在，石油公司股票將歸零，現有金融體系面臨崩潰。這被視為政府秘密壓制UFO真相的核心經濟動機之一。',
+   events:['e15'],relPersons:[]},
+
+  {id:'c_mfd',cat:'tech',zh:'磁流體動力學裝置',en:'MFD — Magnetohydrodynamic Device',
+   alias:'Plasma vortex drive',
+   desc:'TR-3B據稱使用的核心反重力技術，利用超導電漿在環形腔中高速旋轉產生強磁場，可抵銷89%的重力。',
+   detail:'Edgar Fouche描述TR-3B中央有一個充滿加壓水銀氣體的圓形環形腔，電漿以每分鐘數萬轉高速旋轉，產生的磁場干擾引力場，使飛行器重量趨近於零。剩餘11%的重力由三個多模式推進引擎抵消。磁流體動力學本身是真實的物理學領域，但現有技術無法實現此規模的應用。',
+   events:['e16'],relPersons:['p_fouche']},
+
+  {id:'c_element115',cat:'tech',zh:'115號元素／鏌',en:'Element 115 / Moscovium (Mc)',
+   alias:'Ununpentium (Uup), super-heavy element',
+   desc:'Bob Lazar 1989年聲稱外星飛碟使用的燃料元素。2003年俄美科學家在JINR首次合成，但所有已知同位素半衰期僅0.65秒。',
+   detail:'Lazar聲稱需要穩定的115號同位素，且能產生引力波——與現代核科學的發現完全矛盾。主要爭議點：1989年115號元素不存在，Lazar怎能「無中生有」？反駁：預測一個數字不等於了解其物理特性。合成出的鏌無法穩定存在，遑論作為燃料。科學家明確表示：「這個發現與Bob Lazar的說法毫無關係。」',
+   events:['e15'],relPersons:['p_lazar']},
+
+  {id:'c_transmedium',cat:'tech',zh:'跨介質飛行',en:'Trans-Medium Travel',
+   alias:'Transmedium capability',
+   desc:'UAP無縫切換太空、大氣層與水底環境的能力，是UAP六大物理特徵之一。',
+   detail:'USS奧馬哈艦2019年拍到球形UFO沒入水中的影像是最直接的記錄案例。水下移動速度遠超任何已知潛艇（最快核潛艇約56公里/小時）。若UFO可在水中以高速移動卻無空穴效應（cavitation），表明其使用了某種流體力學上的屏蔽技術。這也解釋了為何大量UFO目擊事件發生在海面附近。',
+   events:['e18'],relPersons:['p_fravor']},
+
+  {id:'c_camouflage',cat:'tech',zh:'跨波段隱形',en:'Cross-Spectrum Camouflage',
+   alias:'Stealth across spectra',
+   desc:'UAP可主動遮蔽雷達、紅外線及光學偵測的能力，但有時肉眼仍可見。',
+   detail:'2004年Tic-Tac事件中，USS普林斯頓的SPY-1雷達在一開始無法追蹤，但肉眼仍清晰可見，顯示隱形並非全頻段。後來雷達追蹤到它可能是因為它允許被追蹤（展示能力？）。若曲速氣泡理論成立，時空曲率本身可以解釋部分電磁波屏蔽，而曲率不均勻時則會出現光學可見窗口。',
+   events:['e18'],relPersons:['p_fravor']},
+
+  {id:'c_dew',cat:'tech',zh:'定向能量武器',en:'Directed Energy Weapon (DEW)',
+   alias:'Laser weapon, microwave weapon, Active Denial System',
+   desc:'使用高能光束（激光、微波、粒子束）攻擊目標的武器，Amy Eskridge聲稱遭DEW攻擊並造成手部燒傷。',
+   detail:'定向能量武器是真實存在且已部署的軍事技術，包括美軍的主動拒止系統（ADS，微波皮膚灼燒）和多種激光系統。Eskridge在死前錄影中展示了疑似DEW造成的手部燒傷，並說「如果你看到我自殺的報告，那不是真的」。此說法無法獨立核實，但DEW攻擊在不留明顯傷口的情況下造成組織損傷在醫學上是可能的。',
+   events:['e25'],relPersons:['p_eskridge']},
+
+  {id:'c_telepathy',cat:'tech',zh:'心靈感應',en:'Telepathy / Psychic Communication',
+   alias:'Mental transmission, direct mind transfer',
+   desc:'不使用語言直接傳遞思想的溝通方式。EBE1號與護士麥克艾羅伊建立溝通的方式。',
+   detail:'EBE1號在護士處理其傷口時突然在其腦中「說話」，最初只是模糊的感知，後來逐漸清晰。軍方隨即委派護士每天14小時為EBE朗讀書籍，EBE在數天內學會英語。這種學習速度本身已超出人類理解範疇。Steven Greer的CE-5接觸法也基於類似的意念傳遞理念，但兩者可信度差異懸殊。',
+   events:['e6'],relPersons:['p_ebe1','p_nurse']},
+
+  {id:'c_cattleMut',cat:'tech',zh:'牛隻殘害',en:'Cattle Mutilation (UAP-Related)',
+   alias:'Unexplained animal mutilation',
+   desc:'牲畜被精密切除特定器官（眼球、舌頭、生殖器等），無出血跡象，周圍地面無足跡，傳說與外星基因採集有關。',
+   detail:'美國西南部每年有數百宗記錄在案，新墨西哥州、科羅拉多州最為集中。手術精確程度超越一般外科手術，器官切口光滑如激光切割，周圍組織無感染跡象。FBI曾於1979年正式調查「Operation Animal Mutilation」，最終以「無法確定兇手」結案。被認為與艾森豪威爾條約中「允許外星人用美國境內牛羊做基因實驗」的條款直接相關。',
+   events:['e9'],relPersons:['p_eisenhower']},
+
+  {id:'c_bioEffect',cat:'tech',zh:'生物效應',en:'UAP Biological Effects',
+   alias:'Radiation exposure, white matter lesions',
+   desc:'近距離接觸UFO後出現的生理症狀，包括輻射燒傷、腦部白質傷痕、DNA損害。',
+   detail:'AATIP計劃已建立一份機密的UAP生物效應資料庫，記錄數十名軍人的相關醫療報告。典型症狀包括：皮膚和眼部熱燒傷（無明顯光源）、神經系統損傷、白質傷痕（腦部MRI可見）、免疫系統異常。1980年英國Rendlesham森林事件的美軍士兵後來陸續出現放射性相關疾病。',
+   events:['e18'],relPersons:['p_salas']},
+
+  {id:'c_janet',cat:'tech',zh:'珍妮特航空',en:'Janet Airlines (JANET)',
+   alias:'Just Another Non-Existent Terminal',
+   desc:'一批無標記白色737客機，每天從拉斯維加斯麥卡倫機場秘密接送數百名前往51區的工人。',
+   detail:'「JANET」被戲稱為「Just Another Non-Existent Terminal」的縮寫。飛機全白塗裝，機身僅有一條細紅線，無任何航空公司標識，但在民航雷達上出現。Bob Lazar 1989年提及Janet Airlines的存在，當時被視為無法核實。2013年CIA承認51區後，衛星圖像和航班記錄間接確認了Janet Airlines的日常運作。',
+   events:['e15'],relPersons:['p_lazar']},
+
+  {id:'c_qclear',cat:'tech',zh:'Q Clearance',en:'Q Clearance — DOE Top Secret / Restricted Data',
+   alias:'Department of Energy Top Secret',
+   desc:'美國能源部最高機密許可，可接觸核武器設計資料及高度機密情報。Bob Lazar聲稱通過此許可進入S4基地。',
+   detail:'Q Clearance的獲批需要極嚴格的背景調查，通常需要數個月。Lazar聲稱通過EG&G公司特殊管道在極短時間內獲批，並被分配至S4基地。美國政府從未確認Lazar曾取得Q Clearance，且其教育記錄的調查顯示他聲稱的MIT學位無法被核實。這是質疑Lazar可信度的核心依據之一。',
+   events:['e15'],relPersons:['p_lazar']},
+
+  // ─────────────────────────────────────
+  // 地點 / 設施
+  // ─────────────────────────────────────
+  {id:'c_area51',cat:'place',zh:'51區',en:'Area 51 / Homey Airport / Groom Lake',
+   alias:'Dreamland, The Ranch, Paradise Ranch',
+   desc:'位於內華達州的美國最機密空軍基地，2013年CIA正式承認其存在，描述為航空測試場。',
+   detail:'正式名稱為Homey Airport，建於1955年，鄰近Groom Lake乾湖床。是U-2、SR-71、F-117等機密飛行器的測試基地。每天由珍妮特航空接送工人，基地周圍有射殺令的警告標誌。2013年解密文件顯示51區早在1950年代已存在，但從未承認與UFO有關。',
+   events:['e9','e15'],relPersons:['p_eisenhower','p_lazar']},
+
+  {id:'c_s4',cat:'place',zh:'S4基地',en:'S-4 Facility / Papoose Lake Site',
+   alias:'The Facility, Papoose Mountain Site',
+   desc:'Bob Lazar描述的51區南面24公里處的地下設施，建於山體之內，正面有九個機庫門各藏一架外星飛碟。',
+   detail:'Lazar描述S4建於帕普斯湖旁的山體內部，正面有9個機庫門，關閉後與山體融為一體。門後各藏一架不同外形的UFO。Lazar在此基地工作期間，曾帶朋友到附近偷看UFO測試，被軍方發現並被解僱。官方從未承認S4基地的存在，衛星圖像顯示該區域確有設施，但無法核實細節。',
+   events:['e15'],relPersons:['p_lazar']},
+
+  {id:'c_roswell',cat:'place',zh:'羅茲威爾',en:'Roswell, New Mexico',
+   alias:'Roswell AAF, Walker Air Force Base',
+   desc:'新墨西哥州小城，1947年7月因不明飛行物墜毀事件而成為全球UFO文化的象徵。',
+   detail:'當時的羅茲威爾陸軍航空基地（Roswell AAF）是全球唯一裝備核武器的空軍基地（509轟炸機聯隊），這被認為是外星人選擇在此附近飛行（或墜毀）的可能原因之一。目前此地已成為全球最著名的UFO旅遊目的地，每年舉辦UFO嘉年華。',
+   events:['e3'],relPersons:['p_brazel','p_marcel','p_ramey']},
+
+  {id:'c_wpafb',cat:'place',zh:'萊特-帕特森空軍基地',en:'Wright-Patterson Air Force Base, Ohio',
+   alias:'WPAFB, Hangar 18',
+   desc:'俄亥俄州空軍基地，傳說是外星人遺骸和UFO殘骸的最終儲存地點，特別是「18號機庫」。',
+   detail:'藍皮書計劃的總部即設於此。McCasland將軍的妻子在其失蹤後公開澄清：「Neil對於存放在Wright-Patterson的外星人遺體沒有任何特殊知識。」這個澄清本身也引發好奇——他的妻子為何需要特別澄清這一點？「18號機庫」的傳說可追溯至1947年，傳說羅茲威爾殘骸和外星人遺骸被運送至此。',
+   events:['e3','e5'],relPersons:['p_mccasland']},
+
+  {id:'c_holloman',cat:'place',zh:'霍洛曼空軍基地',en:'Holloman Air Force Base, New Mexico',
+   alias:'Holloman AFB',
+   desc:'新墨西哥州空軍基地，傳說是1954年艾森豪威爾與外星人秘密會面及1964年Project Serpo外星飛船降落的地點。',
+   detail:'兩個關鍵事件均據說在此發生：1954年艾森豪與外星人的「第一次接觸」會面，以及1964年4月24日Project Serpo的換人儀式。霍洛曼基地至今仍是現役空軍測試設施，以無人機和飛彈試驗為主。',
+   events:['e9','e12'],relPersons:['p_eisenhower','p_ebe1']},
+
+  {id:'c_lanl',cat:'place',zh:'洛斯阿拉莫斯國家實驗室',en:'Los Alamos National Laboratory (LANL)',
+   alias:'Los Alamos Lab, Project Y',
+   desc:'美國最重要的核武研究機構，曼哈頓計劃發源地。多名失蹤科學家與此地有關聯。',
+   detail:'成立於1943年，最初代號「Project Y」，是曼哈頓計劃的核心研究基地，負責設計和製造了廣島和長崎的原子彈。Bob Lazar聲稱曾在此工作，多名失蹤科學家在此地或周邊機構工作（Anthony Chavez、Melissa Casias）。愛德華·特勒亦曾在此工作，並倡導成立勞倫斯利佛摩國家實驗室。',
+   events:['e15','e25'],relPersons:['p_lazar','p_teller','p_chavez','p_casias']},
+
+  {id:'c_kirtland',cat:'place',zh:'柯特蘭空軍基地',en:'Kirtland Air Force Base, New Mexico',
+   alias:'Kirtland AFB, Manzano Base',
+   desc:'新墨西哥州阿布奎基的空軍基地，負責核武器儲存和管理，與多名失蹤科學家的工作地點重疊。',
+   detail:'柯特蘭基地是美國核武器儲存的主要場所之一，鄰近的曼薩諾山地下設施曾是美國最大的核武庫。基地亦有飛利浦實驗室（後改稱空軍研究實驗室），專門研究先進武器概念，包括定向能量武器。McCasland將軍曾是空軍研究實驗室指揮官，與柯特蘭基地有直接關聯。',
+   events:['e25'],relPersons:['p_mccasland']},
+
+  {id:'c_malmstrom',cat:'place',zh:'Malmstrom空軍基地',en:'Malmstrom Air Force Base, Montana',
+   alias:'Malmstrom AFB, Great Falls AFB',
+   desc:'蒙大拿州空軍基地，1967年發生UFO導致10支洲際彈道核彈同時失去備戰狀態的事件。',
+   detail:'1967年3月16日和24日兩次事件（第一次在8天後通過解密文件披露），共20支核彈受影響。核彈系統有多重繁複保護設計，單一電力故障不可能同時影響10支核彈。美軍調查後無法解釋，秘密列為最高機密，Robert Salas直到1996年相關文件解密後才公開陳述。',
+   events:['e14'],relPersons:['p_salas']},
+
+  {id:'c_papoose',cat:'place',zh:'帕普斯湖',en:'Papoose Lake (Papoose Dry Lake)',
+   alias:'Papoose Mountain',
+   desc:'位於51區南面24公里的乾湖床，Bob Lazar描述的S4基地即嵌入其旁的山體內。',
+   detail:'Bob Lazar和同事曾多次在週三晚上駕車到帕普斯湖附近的山丘，觀看S4基地進行UFO測試飛行。最終被軍方發現並被解僱。他在接受George Knapp訪問時詳細描述了前往的路線，這些地理細節後來被部分核實。',
+   events:['e15'],relPersons:['p_lazar','p_knapp']},
+
+  {id:'c_plant42',cat:'place',zh:'植物42號工廠',en:'Plant 42 (Air Force Plant 42), Palmdale, CA',
+   alias:'Palmdale Production Facility',
+   desc:'加州帕姆代爾的秘密軍用航空器生產設施，B-2隱形轟炸機等機密飛行器在此生產，Edgar Fouche聲稱TR-3B亦在此研發。',
+   detail:'洛克希德·馬丁臭鼬工廠、諾格曼斯·格魯曼等主要國防承包商均在此設有生產線。U-2、SR-71、B-2等在51區測試的飛行器均在此製造。設施高度機密，部分建築至今無法從衛星圖像識別用途。',
+   events:['e16'],relPersons:['p_fouche']},
+
+  // ─────────────────────────────────────
+  // 文件 / 報告
+  // ─────────────────────────────────────
+  {id:'c_twiningMemo',cat:'doc',zh:'Twining備忘錄',en:'Twining Memo (1947)',
+   alias:'AMC Opinion Concerning "Flying Discs"',
+   desc:'1947年9月21日由空軍中將Nathan Twining簽署的內部備忘錄，確認UFO「真實存在，非幻覺」，已解密。',
+   detail:'備忘錄原題為「AMC Opinion Concerning \'Flying Discs\'」，確認UFO現象真實，性能遠超任何已知國家航空技術，建議成立正式調查部門。這直接促成Project Sign（1948）成立。備忘錄現存於國家檔案館，是UFO研究中被最廣泛引用的真實歷史文件，也是官方不能否認「早就知道UFO真實存在」的鐵證。',
+   events:['e4'],relPersons:['p_twining']},
+
+  {id:'c_mj12docs',cat:'doc',zh:'MJ-12文件',en:'Majestic 12 Documents (1984)',
+   alias:'MJ-12 briefing papers, Eisenhower Briefing Document',
+   desc:'1984年以黑白菲林神秘方式寄給UFO愛好者的秘密文件，描述MJ-12組織的成立和運作。FBI調查後認定為偽造，真偽至今爭議不休。',
+   detail:'文件包含「艾森豪威爾簡報文件」（1952年11月18日）、「科默特備忘錄」（1954年7月14日）等多份。FBI 1988年調查後認定為偽造，理由包括日期格式錯誤等。但支持者指出部分技術細節當時不可能被偽造者知道。2023年聽證會後，David Grusch的描述與MJ-12文件的框架高度一致，令真偽問題再受關注。',
+   events:['e5'],relPersons:['p_truman','p_eisenhower']},
+
+  {id:'c_redBook',cat:'doc',zh:'紅皮書',en:'The Red Book',
+   alias:'Project Serpo Report',
+   desc:'Project Serpo 12名地球交流成員於1978年返回後撰寫的3000頁詳細報告，記錄賽伯星的地理、社會、技術等各方面資訊，從未公開。',
+   detail:'紅皮書理論上記錄了人類在外星環境中13年的完整觀察，包括賽伯星的天文數據（兩個太陽、兩個月亮、365天公轉周期），外星人的社會組織、技術水平、語言結構，以及318號成員遺體被用於複製人體實驗的外交危機記錄。8名返回成員因長期暴露在雙星輻射下陸續去世，最後一人於2002年去世，帶走了所有直接目擊者。',
+   events:['e12'],relPersons:['p_ebe1']},
+
+  {id:'c_yellowBook',cat:'doc',zh:'黃皮書',en:'The Yellow Book',
+   alias:'The Alien Yellow Book',
+   desc:'傳說中精靈型外星人（北歐型）提供給艾森豪威爾的宇宙知識文件，記載宇宙的真實歷史和多維度宇宙的運作原理。',
+   detail:'黃皮書被描述為一種全息式互動裝置，而非普通書本——讀者可以通過思維接口「進入」其中查看宇宙歷史影像。艾森豪威爾因拒絕放棄核武而未能獲得黃皮書。部分研究者認為黃皮書根本不存在，是陰謀論敘事中用來解釋「外星人了解遠超人類知識」的修辭裝置。',
+   events:['e9'],relPersons:['p_eisenhower']},
+
+  {id:'c_rameyLetter',cat:'doc',zh:'雷米將軍信件',en:'Ramey Letter (1947)',
+   alias:'The Ramey document, Fort Worth memo',
+   desc:'1947年羅茲威爾記者會中雷米將軍手持的信件，近年高清復刻後疑似可讀出「飛行器殘骸」和「幾名受害者」字眼。',
+   detail:'信件在記者會現場被攝影師拍到，但字跡模糊。2017年德克薩斯大學阿靈頓分校使用數位增強技術嘗試解讀，聲稱可辨識出「the victims of the wreck」（殘骸受害者）和「disc」等字眼。官方從未回應此分析。若解讀屬實，這將是美國政府承認羅茲威爾有「受害者」（即外星人遺骸）的最接近的「官方文件」。',
+   events:['e3'],relPersons:['p_ramey']},
+
+  {id:'c_jfkDocs',cat:'doc',zh:'JFK文件',en:'JFK Assassination Records',
+   alias:'Warren Commission Records, HSCA Records',
+   desc:'與甘迺迪遇刺調查相關的政府機密文件，特朗普於2026年部分解密。',
+   detail:'JFK文件由《甘迺迪刺殺記錄收集法》（1992年）授權在2017年全面解密，但因CIA和FBI申請延遲，至今仍有部分文件未解密。特朗普2017年任期和2026年任期都承諾全面解密。UFO研究者認為部分文件涉及甘迺迪要求CIA提供MJ-12資訊及外星人情報的命令，被視為其遇刺的潛在動機。',
+   events:['e11'],relPersons:['p_kennedy','p_trump']},
+
+  {id:'c_invSecAct',cat:'doc',zh:'發明保密法',en:'Invention Secrecy Act (1951)',
+   alias:'35 U.S.C. §§ 181-188',
+   desc:'允許美國政府對威脅國家安全的專利申請發出保密令的法律。Amy Eskridge的反重力研究曾遭NASA警告可能觸犯此法。',
+   detail:'每年有約5,000至6,000份專利申請被此法壓制，包括先進能源、推進和通訊技術。支持者認為此法被濫用於壓制可能顛覆現有能源工業的技術，包括零點能和反重力研究。Amy Eskridge曾收到NASA的警告信，要求她不得以任何形式公開其反重力研究成果，被視為此法被用來掩蓋外星技術的間接證據。',
+   events:['e25'],relPersons:['p_eskridge']},
+
+  // ─────────────────────────────────────
+  // 人物稱謂
+  // ─────────────────────────────────────
+  {id:'c_ufo',cat:'entity',zh:'UFO／不明飛行物',en:'UFO — Unidentified Flying Object',
+   alias:'Flying saucer, Flying disc',
+   desc:'泛指任何無法以已知技術識別的飛行物體，1947年後廣泛使用，現多被官方術語UAP取代。',
+   detail:'「飛碟」（Flying Saucer）一詞源自1947年Kenneth Arnold的描述被媒體誤解，他形容飛行方式「像打水漂」（saucer-skipping），記者理解為碟形（saucer-shaped）。「UFO」（Unidentified Flying Object）由美國空軍於1950年代正式採用。2021年美國政府改以「UAP」取代「UFO」，以去除大眾文化聯想，強調科學調查框架。',
+   events:['e2','e3','e4','e7','e8','e18','e21'],relPersons:['p_arnold','p_hynek']},
+
+  {id:'c_uap',cat:'entity',zh:'不明空中現象',en:'UAP — Unidentified Aerial Phenomenon',
+   alias:'Unidentified Anomalous Phenomenon (updated 2022)',
+   desc:'2021年起美國政府正式採用的術語，2022年進一步擴展為「不明異常現象」以涵蓋水下和跨介質目擊。',
+   detail:'術語轉換有兩個目的：一是去除「飛碟」的娛樂化聯想，鼓勵飛行員正式上報；二是擴大定義範圍（從「空中」到「異常」），以涵蓋水下、太空及可能的跨維度現象。2023年聽證會及此後的官方報告均使用UAP，而非UFO。',
+   events:['e18','e19','e21','e24'],relPersons:['p_grusch','p_elizondo']},
+
+  {id:'c_ebe',cat:'entity',zh:'地外生命體',en:'EBE — Extraterrestrial Biological Entity',
+   alias:'Alien, ET, Non-Terrestrial',
+   desc:'美軍內部對外星人的官方稱謂，源自羅茲威爾事件後的分類文件。EBE-1即羅茲威爾生還外星人。',
+   detail:'EBE這個術語被認為源自1947年羅茲威爾事件的後續分類程序。EBE-1是唯一生還的羅茲威爾外星人，死於1952年。EBE-2據說是Project Serpo留守地球的賽伯星人。在David Grusch的2023年聽證會中，他使用了更新的術語「Non-Human Biologic」，因為「外星」（extraterrestrial）這個詞預設了跨星際起源，而UFO駕駛者可能來自地球的其他維度或時間。',
+   events:['e3','e6','e12'],relPersons:['p_ebe1']},
+
+  {id:'c_nhi',cat:'entity',zh:'非人類生命體',en:'NHI — Non-Human Intelligence',
+   alias:'Non-Human Biologic, Non-Terrestrial Intelligence',
+   desc:'David Grusch在2023年聽證會使用的術語，刻意避開「外星人」以涵蓋跨維度生命體等多種可能性。',
+   detail:'Grusch解釋，使用「Non-Human Biologic」而非「alien」是因為UFO駕駛者的實際起源尚不確定：他們可能是來自其他星球的外星人、來自其他維度的生命體、未來人類的回歸，或地球史前超文明的倖存者。聽證會上Grusch在法律約束下的每一個字都經過仔細斟酌，術語選擇本身就傳達了重要資訊。',
+   events:['e21'],relPersons:['p_grusch']},
+
+  {id:'c_whistleblower',cat:'entity',zh:'吹哨者',en:'Whistleblower',
+   alias:'Insider, Informant, Source',
+   desc:'冒個人職業或人身安全風險揭露政府或機構秘密的內部人士。',
+   detail:'在UFO語境中特指前軍方、情報或政府人員，公開聲稱政府隱瞞UFO及外星人資訊的人。主要案例：Bob Lazar（S4基地，1989）、Luis Elizondo（AATIP，2017）、David Grusch（非人類生命體，2023）。吹哨者保護法理論上保護此類人士，但Grusch等人仍遭受各種形式的打壓。11名科學家的死亡和失蹤被視為對吹哨者的「最終警告」。',
+   events:['e15','e19','e21','e22','e25'],relPersons:['p_lazar','p_elizondo','p_grusch']},
+
+  {id:'c_deepState',cat:'entity',zh:'深層政府',en:'Deep State',
+   alias:'Shadow Government, Permanent Government',
+   desc:'游離於民選政府控制之外的秘密決策架構，UFO語境中特指MJ-12及其後繼組織。',
+   detail:'「深層政府」在UFO語境中特指那些不受任何選舉結果影響、持續控制外星人相關資訊的秘密架構。Elizondo的陳述暗示連現任總統都被排除在外。即使是特朗普的UFO解密命令，批評者也認為真正最機密的資料根本不在政府可解密的範疇內，而在私人公司手中。',
+   events:['e5','e10','e11'],relPersons:['p_forrestal','p_kennedy','p_grusch']},
+
+  {id:'c_mic',cat:'entity',zh:'軍工複合體',en:'Military-Industrial Complex (MIC)',
+   alias:'Defense-industrial complex',
+   desc:'軍隊與私人國防工業的共生政治經濟關係，艾森豪威爾在1961年退任演說中首次公開警告。',
+   detail:'艾森豪的退任演說原稿最初寫的是「軍工國會複合體」（Military-Industrial-Congressional Complex），但刪去了「國會」以避免冒犯。他的演說被視為他對允許Rockefeller加入MJ-12、造成私人機構控制外星科技這一決策的最大悔恨的間接表達。現代UFO研究者認為洛克希德·馬丁、波音等公司是最可能持有UFO殘骸的機構。',
+   events:['e10'],relPersons:['p_eisenhower','p_rockefeller']},
+
+  {id:'c_greys',cat:'entity',zh:'小灰人',en:'Grey Aliens / Greys',
+   alias:'Zeta Reticulans, EBEs',
+   desc:'最廣為人知的外星人形象：灰色皮膚、大頭大眼、細小身軀，無明顯鼻子和嘴巴，傳說是垂死種族。',
+   detail:'小灰人形象在1961年「希爾夫婦綁架事件」後廣泛傳播，成為外星人的標準形象。傳說他們來自澤塔雙星系統（Zeta Reticuli），是垂死種族，需要地球生物基因延續種族。與艾森豪威爾簽訂條約的正是這一種族，條約允許他們收集地球生物基因樣本。David Grusch使用「Non-Human Intelligence」而非「Grey Aliens」，顯示政府對此描述持謹慎態度。',
+   events:['e9'],relPersons:['p_eisenhower','p_ebe1']},
+
+  {id:'c_nordics',cat:'entity',zh:'北歐型外星人',en:'Nordic Aliens / Tall Whites',
+   alias:'Space Brothers, Pleiadians',
+   desc:'外形如北歐人或精靈：金頭髮、藍眼睛、身材高大，代表善意文明，曾要求艾森豪放棄核武。',
+   detail:'被稱為「Space Brothers」或「Pleiadians」的北歐型外星人在UFO研究中通常被描述為良性或中立的，與小灰人的「入侵者」形象形成對比。他們據說了解核武對宇宙時空和其他維度的破壞性，因此強烈反對核武的使用。艾森豪拒絕放棄核武後，北歐型外星人沒有再出現，轉而由小灰人與人類建立更「務實」的關係。',
+   events:['e9'],relPersons:['p_eisenhower']},
+
+  {id:'c_predictiveProg',cat:'entity',zh:'預測程式',en:'Predictive Programming',
+   alias:'Soft disclosure, narrative seeding',
+   desc:'透過電影、媒體提前讓公眾在心理上接受即將發生的巨大改變的概念，《Disclosure Day》被認為是揭密前的心理建設。',
+   detail:'史匹堡的UFO相關電影（《第三類接觸》1977年、《E.T.》1982年、《超時空接觸》1997年等）在部分研究者看來不是純粹的商業創作，而是政府授意的心理建設。如果揭密日真的到來，大眾對外星人形象的接受程度比1947年要高得多，《E.T.》功不可沒。2026年《Disclosure Day》的上映時機被視為最新的預測程式案例。',
+   events:['e24'],relPersons:['p_trump']},
+
+  // ─────────────────────────────────────
+  // 天體
+  // ─────────────────────────────────────
+  {id:'c_oumuamua',cat:'celestial',zh:'奧默默',en:"1I/'Oumuamua (C/2017 U1)",
+   alias:"'Oumuamua, First interstellar object",
+   desc:'2017年10月發現的第一顆確認來自太陽系外的星際天體，夏威夷語意為「偵察兵」。',
+   detail:'奧默默於2017年9月9日最接近太陽，10月14日最接近地球，10月19日才被Pan-STARRS望遠鏡發現（彼時它已飛過地球5天）。特殊之處：無彗尾但有非重力加速、以近90度插入黃道面後V型反彈飛出、偏心率1.2（高得異常）、雪茄形（400-800米長）。Avi Loeb在2021年《地外文明》一書中提出「光帆」假說，認為它可能是外星文明的探測器。Di大個人評估奧默默比3I/ATLAS更像外星飛船。',
+   events:['e20','e23'],relPersons:['p_loeb']},
+
+  {id:'c_3iatlas',cat:'celestial',zh:'3I/ATLAS',en:'3I/ATLAS (C/2025 N1)',
+   alias:'Third interstellar object, C/2025 N1',
+   desc:'2025年7月發現的第三顆星際天體，直徑最高達5.6公里，偏心率6.14創歷史新高。',
+   detail:'Avi Loeb分析的異常特徵：軌道與黃道面對齊（機率0.2%）、路徑精準經過金星、火星、木星、近日點剛好躲在太陽後方（機率0.005%）、發現7個噴流（5個向後+2個反日）、哈勃觀察彗核完好但有非重力加速（需蒸發13%總質量才能解釋）。Loeb本人承認非自然起源機率只有3%-40%，火星探測器確認有彗尾，主流天文學界認為是彗星。Jeremy Corbell於2025年1月（早於發現6個月）曾預告政府即將公佈「非石頭」的外太空物體。',
+   events:['e23'],relPersons:['p_loeb','p_corbell']},
+
+  {id:'c_borisov',cat:'celestial',zh:'布里索夫彗星',en:"2I/Borisov (C/2019 Q4)",
+   alias:'Borisov comet, second interstellar object',
+   desc:'2019年8月由業餘天文學家Gennady Borisov發現的第二顆星際天體，行為符合普通彗星，偏心率3.36。',
+   detail:'布里索夫彗星是三顆星際天體中最「正常」的，有明顯彗尾、揮發物質的比例與太陽系彗星相似，無非重力加速。科學界普遍認為它就是一顆來自其他恆星系統的普通彗星，因此成為比較基準：奧默默和3I/ATLAS的異常之處在布里索夫身上均不出現，更凸顯了前兩者的特殊性。',
+   events:['e23'],relPersons:['p_loeb']},
+
+  {id:'c_serpoStar',cat:'celestial',zh:'賽伯星',en:'Serpo / Zeta Reticuli System (39 ly)',
+   alias:'Zeta Reticuli, EBE home world',
+   desc:'Project Serpo傳說中EBE1號的母星，距地球39光年，有兩個太陽、兩個月亮，人口65萬。',
+   detail:'賽伯星的傳說描述：直徑11,000公里（地球12,700公里），公轉周期865天，自轉43小時/天，兩個太陽造成全年無明顯晝夜交替，強烈輻射對人類健康有害。澤塔雙星系統（Zeta Reticuli）是南天球的一對肉眼可見的雙星，距地球約39光年，與EBE1號的描述吻合。澤塔雙星在1961年「希爾夫婦綁架事件」後廣泛與外星人聯繫起來。',
+   events:['e6','e12'],relPersons:['p_ebe1']},
+
+  {id:'c_neo',cat:'celestial',zh:'近地天體',en:'NEO — Near-Earth Object',
+   alias:'Near-Earth asteroid, Potentially Hazardous Object (PHO)',
+   desc:'軌道靠近地球的小行星或彗星，通古斯事件和3I/ATLAS均是NEO威脅的討論案例。',
+   detail:'直徑超過140米且軌道接近地球的NEO被列為「潛在危險天體」（PHO）。通古斯1908年的爆炸物體估計直徑50-100米，屬中型NEO。3I/ATLAS最接近地球時距離2.7億公里，不構成直接威脅。Avi Loeb的3I/ATLAS分析強調，若這是自然天體，其巨大質量（33-330億噸）仍是潛在的行星防禦議題。',
+   events:['e1','e23'],relPersons:['p_loeb']},
+
+  // ─────────────────────────────────────
+  // UFO 類型
+  // ─────────────────────────────────────
+  {id:'c_ticTac',cat:'ufo',zh:'Tic-Tac型UAP',en:'Tic-Tac UAP',
+   alias:'White Tic-Tac, USS Nimitz Object',
+   desc:'2004年USS尼米茲事件中David Fravor描述的UFO外形：約14米長，白色，無翼無尾，無熱排放。',
+   detail:'Tic-Tac型UAP的特點：以螺旋形運動回應飛機接近（顯示對周圍環境有意識）、瞬間消失後在100公里外出現（瞬間移動或極速加速）、可在水面和大氣中無縫切換、雷達偵測不到但肉眼清晰可見。2020年由美國海軍正式解密確認的FLIR影片即記錄了此類型UAP。Fravor評估：「以美軍現有實力，根本不可能擊落對方。」',
+   events:['e18'],relPersons:['p_fravor']},
+
+  {id:'c_jellyfish',cat:'ufo',zh:'水母型UAP',en:'Jellyfish UAP',
+   alias:'Transmedium orb, jellyfish-shaped UAP',
+   desc:'2017年中東地區MQ-9無人機拍攝的UAP，外形如水母，有多個垂吊部件，可在水面懸停。',
+   detail:'2024年Jeremy Corbell公開完整17分鐘原始片段，顯示水母型UAP緩慢飛行至海面後沒入水中，在水下持續移動。2025年MQ-9無人機影片中，地獄火飛彈直接命中一個球形UAP後被彈開，UAP毫髮無損繼續飛行，被認為是同類型UAP的近親。',
+   events:['e21'],relPersons:['p_corbell']},
+
+  {id:'c_cubeInSphere',cat:'ufo',zh:'立方體加球體型UAP',en:'Cube in Sphere UAP',
+   alias:'Gimbal object, cube-sphere UAP',
+   desc:'Ryan Graves描述的UAP：半透明球體內含黑色立方體，約50-100米大小，可干擾雷達。',
+   detail:'Graves在擔任空軍機師期間多次見到此類型UAP，強調以他識別飛行器的專業背景，從未見過任何已知國家有立方體形狀的飛行器。此類UAP會干擾周圍飛機的電子系統，並在機師接近時快速離開。Graves在2023年聽證會作證時指出，此類目擊對他的中隊已是「家常便飯」，但因污名化問題大多數飛行員選擇不上報。',
+   events:['e21'],relPersons:['p_graves']},
+
+  {id:'c_orb',cat:'ufo',zh:'球形UAP／光球',en:'Orb / Sphere UAP',
+   alias:'UAP orbs, luminous spheres',
+   desc:'最常見的UAP形狀之一，包括USS奧馬哈艦2019年拍到的球形UFO沒入水中，以及2025年MQ-9飛彈彈開事件。',
+   detail:'球形UAP有多種紀錄：USS奧馬哈艦（2019年）拍到球形UFO在夜視鏡下顯示為發光球體，飛行速度約145海里/小時後沒入海面；2025年MQ-9影片中球形UAP被地獄火飛彈命中後毫髮無損。貝茨球（1974年）和布加球（2025年）是地面發現的球形物體，可能屬於同一分類。',
+   events:['e13','e18'],relPersons:['p_corbell']},
+
+  {id:'c_flyingSaucer',cat:'ufo',zh:'飛碟／碟形UFO',en:'Flying Saucer / Disc-Shaped UFO',
+   alias:'Flying disc, circular UAP',
+   desc:'1947年Kenneth Arnold目擊及羅茲威爾墜毀的經典UFO形狀，也是S4基地傳說中九架外星飛碟的外形。',
+   detail:'「飛碟」是UFO最早也最具代表性的形象。羅茲威爾殘骸和S4基地的UFO均被描述為碟形或橢圓形。Bob Lazar描述的「Sport Model」底部距地一米，表面光滑無接縫。1952年華盛頓UFO事件中的九架飛碟亦為碟形，與1947年Kenneth Arnold目擊的9架數量相同，被認為可能是同一批飛行器。',
+   events:['e2','e3','e7','e15'],relPersons:['p_arnold','p_lazar']},
+
+  {id:'c_triangle',cat:'ufo',zh:'三角形UFO',en:'Triangle UAP / Black Triangle',
+   alias:'Flying triangle, delta-shaped UAP',
+   desc:'自1980年代起頻繁被目擊的黑色三角形飛行物，比利時1989-1990年超過13,500人目擊，TR-3B傳說即屬此類。',
+   detail:'1989-1990年比利時大規模目擊事件持續一年多，超過13,500人目擊，700名警察確認，比利時皇家空軍出動F-16未能攔截。官方從未解釋。Edgar Fouche聲稱TR-3B即為此類，但軍方解釋為B-2或F-117。黑色三角形UFO的共同特徵：三角形輪廓、三個角各有一個燈、中央一個更亮的燈、無明顯引擎聲、可低速懸停。',
+   events:['e16'],relPersons:['p_fouche']},
+
+  {id:'c_sportModel',cat:'ufo',zh:'「Sport Model」飛碟',en:'Sport Model — S-4 Disc',
+   alias:'Bob Lazar disc, S-4 UFO Type 1',
+   desc:'Bob Lazar在S4基地負責逆向工程的特定飛碟型號，橢圓碟形，無電線螺絲，一體成型，內部比外觀更大。',
+   detail:'Lazar描述：直徑約9米，高約4.5米，底部有三個重力推進器，中央有一個反應爐（核心尺寸約一個足球大小），使用115號元素作為燃料。飛船底部距地一米，無法直接觸地。內部有六個彎曲的座艙，設計明顯不是為身高接近人類的生物設計。「所有東西好像是生長出來的，不是製造出來的。」',
+   events:['e15'],relPersons:['p_lazar']},
+
+  {id:'c_betzSphere',cat:'ufo',zh:'貝茨球',en:'Betz Sphere',
+   alias:'The Betz Mystery Sphere',
+   desc:'1974年佛羅里達州發現的20厘米無縫金屬球，可對聲音作出反應，海軍鑑定發現4個磁極和未知內部元素。',
+   detail:'海軍鑑定發現431不鏽鋼合金外殼，但內部有空腔和三個小球（其中一個已「爆」），4個磁極（正常磁性物體只有2個）。J. Allen Hynek確認某些特性「無法用已知物理解釋」。現實主義解釋：工業止回閥（paper mill float ball）。球後來被高價買走，再後來據傳被盜，現下落不明。2025年哥倫比亞布加球呈現類似特性，但有更多科學數據。',
+   events:['e13'],relPersons:['p_hynek']},
+
+  // ─────────────────────────────────────
+  // 戰機型號
+  // ─────────────────────────────────────
+  {id:'c_f94',cat:'aircraft',zh:'F-94星火式戰機',en:'F-94 Starfire',
+   alias:'Lockheed F-94',
+   desc:'美國空軍1950年代全天候截擊機，1952年華盛頓UFO事件中出動攔截但無功而返。',
+   detail:'F-94是北美航空和洛克希德共同改進的雙座噴射機，最高速度960公里/小時。1952年7月華盛頓事件中，F-94多次出動均在升空後發現UFO消失，降落後再出現，完全無法攔截。這次失敗直接暴露了美國空軍面對UFO的無能為力，也是杜魯門震驚的原因之一。',
+   events:['e7'],relPersons:['p_truman']},
+
+  {id:'c_fa18',cat:'aircraft',zh:'F/A-18F超級大黃蜂',en:'F/A-18F Super Hornet',
+   alias:'Super Hornet, Bug',
+   desc:'美國海軍現役多用途戰鬥機，2004年USS尼米茲事件中David Fravor駕駛此機型攔截Tic-Tac型UAP。',
+   detail:'F/A-18F為雙座版本，最高速度約1,960公里/小時（1.8馬赫），配備APG-73雷達。Fravor描述當UAP突然瞬間消失時，他剛開始以螺旋形下降試圖接近，雙方互動顯示UAP對他的行動有明確意識和反應。此事件成為美國海軍正式確認UAP現象的核心證據，並觸發了後來的AATIP調查強化。',
+   events:['e18'],relPersons:['p_fravor']},
+
+  {id:'c_mq9',cat:'aircraft',zh:'MQ-9死神無人機',en:'MQ-9 Reaper UAV',
+   alias:'Reaper drone, Predator B',
+   desc:'美軍主力武裝無人機，2025年影像顯示MQ-9地獄火飛彈命中球形UAP但被彈開，UAP毫髮無損。',
+   detail:'MQ-9 Reaper配備AGM-114地獄火飛彈，可攜帶最多8枚，爆炸威力足以摧毀主戰坦克。飛彈直接命中後UAP毫髮無損繼續飛行，是迄今為止人類武器無法傷害UAP的最有影像記錄的案例，與艾森豪威爾時代外星人向總統展示「你們的武器對我們無效」的傳說形成呼應。',
+   events:['e21'],relPersons:['p_corbell']},
+
+  {id:'c_b2',cat:'aircraft',zh:'B-2幽靈轟炸機',en:'B-2 Spirit Stealth Bomber',
+   alias:'Stealth bomber, Spirit',
+   desc:'美國空軍三角形隱形戰略轟炸機，翼展52米，是三角形黑色UFO目擊的官方解釋之一。',
+   detail:'B-2的三角形輪廓、黑色塗裝和夜間測試飛行是官方解釋大量三角形UFO目擊的首要依據。但B-2有以下特性無法解釋三角形UFO目擊：無法在低空懸停、最低飛行速度約350公里/小時（不能「靜止懸停」）、有可識別的引擎噪音。批評者認為B-2解釋是刻意製造的混淆策略。',
+   events:['e16'],relPersons:[]},
+
+  {id:'c_u2',cat:'aircraft',zh:'U-2偵察機',en:'U-2 Dragon Lady',
+   alias:'Dragon Lady, Lockheed U-2',
+   desc:'洛克希德臭鼬工廠研發的高空偵察機，在51區進行早期測試，CIA曾用其解釋大量UFO目擊。',
+   detail:'U-2飛行高度超過70,000英尺（21公里），民航機巡航高度約35,000英尺，因此在晨曦或黃昏時，U-2機身反射陽光而地面仍是黑夜，看起來像一個在夜空中發光的物體。CIA在2013年承認51區的文件中指出大量1950-60年代的UFO目擊實際上是U-2試飛。UFO研究者認為這是刻意的轉移視線，因為U-2的形狀和行為特性與大部分UFO目擊描述不符。',
+   events:['e15'],relPersons:[]},
+
+  {id:'c_sr71',cat:'aircraft',zh:'SR-71黑鳥',en:'SR-71 Blackbird',
+   alias:'Blackbird, Habu',
+   desc:'洛克希德臭鼬工廠超音速偵察機，最高速度3,540公里/小時（3.2馬赫），飛行高度超過25,000米。',
+   detail:'SR-71是人類有史以來最快的有人駕駛噴射飛機，從未被任何空對空飛彈成功攔截（飛彈無法追上）。51區是其研發和測試基地之一。與U-2類似，被官方用來解釋「高速移動的發光物體」目擊報告。但SR-71所產生的特殊音爆（震波菱形紋路）、發動機噪音和熱排放特徵使其無法解釋靜默、無音爆的UAP目擊。',
+   events:['e15'],relPersons:[]},
+
+  // ─────────────────────────────────────
+  // 接觸分類（Hynek Scale）
+  // ─────────────────────────────────────
+  {id:'c_ce1',cat:'encounter',zh:'第一類接觸',en:'CE-1 — Close Encounter of the First Kind',
+   alias:'CE1, first kind contact',
+   desc:'在150米範圍內目擊UFO，但無互動或留下物理痕跡。最基本的近距離目擊分類。',
+   detail:'J. Allen Hynek 1972年在《UFO體驗》一書中正式提出近距離接觸分類法。CE-1是最常見的分類，大部分有記錄的UFO目擊屬此類。1947年Kenneth Arnold的目擊屬於遠距離目擊，不算近距離接觸。CE-1要求150米範圍內，是因為Hynek認為在此距離內可以排除大部分自然誤認（天文現象、飛機等）。',
+   events:['e8'],relPersons:['p_hynek']},
+
+  {id:'c_ce2',cat:'encounter',zh:'第二類接觸',en:'CE-2 — Close Encounter of the Second Kind',
+   alias:'CE2, second kind contact',
+   desc:'UFO對周邊環境造成可驗證的物理影響，包括地面燒焦印跡、電子設備失靈、輻射讀數異常等。',
+   detail:'CE-2的關鍵是留下物理證據，使目擊具有獨立可核實性。Malmstrom空軍基地1967年核彈癱瘓事件是CE-2最具公信力的案例之一：10支核彈同時失去備戰狀態，有操作記錄和多名目擊者，後來有解密文件部分確認。1980年英國Rendlesham森林事件（美軍士兵發現地面印跡、測量輻射值）亦屬CE-2。',
+   events:['e14'],relPersons:['p_salas']},
+
+  {id:'c_ce3',cat:'encounter',zh:'第三類接觸',en:'CE-3 — Close Encounter of the Third Kind',
+   alias:'CE3, third kind contact',
+   desc:'目擊UFO同時看到外星生命體。史匹堡1977年電影片名直接來源，令此術語廣為人知。',
+   detail:'羅茲威爾事件中目擊和回收外星人遺骸屬CE-3最重要的歷史案例。1961年希爾夫婦綁架事件最初被歸類為CE-3（後來升級為CE-4）。史蒂芬·史匹堡在製作《第三類接觸》前曾與Hynek本人詳細交流，Hynek甚至在電影中客串出現（在最後接觸場景中手持煙斗的那位科學家）。',
+   events:['e3','e8'],relPersons:['p_hynek']},
+
+  {id:'c_ce4',cat:'encounter',zh:'第四類接觸',en:'CE-4 — Close Encounter of the Fourth Kind',
+   alias:'CE4, abduction, alien abduction',
+   desc:'被外星人綁架或違背意願地帶上飛船。傳說中艾森豪條約允許外星人每年綁架固定數量人體。',
+   detail:'CE-4是Hynek原始分類法中未包含的，由後來的研究者補充。傳說中艾森豪威爾條約允許外星人每年綁架有限數量的美國人進行研究，但灰人從未遵守「有限數量」的約定。美國長期有大量聲稱被綁架的案例（最著名的包括希爾夫婦、特拉維斯·沃頓等），但均無法獨立核實。',
+   events:['e9'],relPersons:['p_eisenhower']},
+
+  {id:'c_ce5',cat:'encounter',zh:'第五類接觸',en:'CE-5 — Close Encounter of the Fifth Kind',
+   alias:'CE5, human-initiated contact',
+   desc:'人類主動發起與外星人的溝通接觸，由Steven Greer倡導，通過冥想和意念傳遞邀請外星人接觸。',
+   detail:'CE-5概念由Steven Greer提出，他聲稱多次成功通過意念傳遞接觸外星意識，並帶領團隊在野外進行CE-5儀式。批評者指出CE-5缺乏可重複驗證的科學基礎，大部分「接觸」無法與自然現象區分。EBE1號與護士麥克艾羅伊的心靈感應溝通在某種意義上也可視為CE-5，儘管是外星人主動發起。',
+   events:['e14'],relPersons:['p_greer']},
+
+  {id:'c_blackSwan',cat:'encounter',zh:'黑天鵝事件',en:'Black Swan Event',
+   alias:'Tail risk, unknown unknown',
+   desc:'哲學家Nassim Nicholas Taleb提出的概念，指極度罕見、影響深遠且事後看起來顯而易見的事件。',
+   detail:'UFO揭密日如果真的到來，將是人類歷史上最大的黑天鵝事件：它將顛覆宗教（人類不再是宇宙唯一智慧生命）、科學（現有物理學無法解釋UFO推進原理）、政治（深層政府七十年欺騙全人類）、金融（能源稀缺性假設崩潰）。但正因為後果太嚴重，政府有充分動機永遠不讓揭密日到來——這本身就形成了一個自我強化的秘密循環。',
+   events:['e24'],relPersons:[]},
+];
+function buildGlossary(eventId) {
+  const relevant = CODEX.filter(g => g.events.includes(eventId));
+  if (!relevant.length) return '<p style="font-size:12px;color:var(--text2)">此事件暫無特定名詞對照</p>';
+  return `<div class="glossary-grid">` + relevant.map(g => `
+    <div class="glossary-item" onclick="openCodexModal('${g.id}')" style="cursor:pointer">
+      <div class="glossary-zh">${g.zh}</div>
+      <div class="glossary-en">${g.en.split('—')[0].split('(')[0].trim()}</div>
+      <div class="glossary-desc">${g.desc.slice(0,80)}…</div>
+    </div>`).join('') + `</div>`;
+}
+
+let codexFilter = 'all';
+let codexSearch = '';
+
+function renderCodex() {
+  const container = document.getElementById('codex-container');
+  const grouped = {};
+  CODEX_CATS.forEach(c => { grouped[c.id] = []; });
+
+  CODEX.filter(item => {
+    const catMatch = codexFilter === 'all' || item.cat === codexFilter;
+    const q = codexSearch.toLowerCase();
+    const textMatch = !q || [item.zh, item.en, item.desc, item.alias||''].join(' ').toLowerCase().includes(q);
+    return catMatch && textMatch;
+  }).forEach(item => {
+    if (grouped[item.cat]) grouped[item.cat].push(item);
+  });
+
+  const activeCats = codexFilter === 'all'
+    ? CODEX_CATS
+    : CODEX_CATS.filter(c => c.id === codexFilter);
+
+  let html = '';
+  activeCats.forEach(cat => {
+    const items = grouped[cat.id];
+    if (!items || !items.length) return;
+    const cards = items.map(item => {
+      const evTags = item.events.slice(0,3).map(eid => {
+        const ev = EVENTS.find(e => e.id === eid);
+        return ev ? `<span class="codex-event-tag" onclick="openEvent('${eid}');event.stopPropagation()">${ev.title.slice(0,18)}…</span>` : '';
+      }).join('');
+      return `<div class="codex-card" onclick="openCodexModal('${item.id}')">
+        <div class="codex-card-zh">${item.zh}</div>
+        <div class="codex-card-en">${item.en.split('—')[0].split('(')[0].trim()}</div>
+        <div class="codex-card-desc">${item.desc}</div>
+        ${item.alias ? `<div style="font-size:10px;color:var(--text2);margin-bottom:6px">別名：${item.alias}</div>` : ''}
+        ${evTags ? `<div class="codex-card-events">${evTags}</div>` : ''}
+      </div>`;
+    }).join('');
+
+    html += `<div class="codex-cat-section" data-cat="${cat.id}">
+      <div class="codex-cat-header">
+        <span class="codex-cat-icon">${cat.icon}</span>
+        <div>
+          <div class="codex-cat-title">${cat.zh}</div>
+          <div class="codex-cat-title-en">${cat.en}</div>
+        </div>
+        <span class="codex-cat-count">${items.length} 條目</span>
+      </div>
+      <div class="codex-grid">${cards}</div>
+    </div>`;
+  });
+
+  container.innerHTML = html || '<div class="empty-msg">沒有符合條件的條目</div>';
+}
+
+function openCodexModal(id) {
+  const item = CODEX.find(c => c.id === id);
+  if (!item) return;
+  const cat = CODEX_CATS.find(c => c.id === item.cat);
+  const catColors = {org:'var(--accent3)',tech:'var(--accent)',place:'var(--gold)',doc:'var(--purple)',entity:'var(--accent2)',celestial:'#80c0ff',ufo:'var(--accent)',aircraft:'var(--gold)',encounter:'var(--accent3)'};
+  const col = catColors[item.cat] || 'var(--accent)';
+
+  const evChips = item.events.map(eid => {
+    const ev = EVENTS.find(e => e.id === eid);
+    return ev ? `<span class="codex-ev-chip" onclick="openEvent('${eid}');closeCodexModal()">${ev.title}</span>` : '';
+  }).join('');
+
+  const personChips = (item.relPersons||[]).map(pid => {
+    const p = PERSONS.find(x => x.id === pid);
+    return p ? `<span class="codex-person-chip" onclick="openPersonModal('${pid}');closeCodexModal()">${p.name}</span>` : '';
+  }).join('');
+
+  document.getElementById('codex-modal-content').innerHTML = `
+    <div class="codex-modal-header">
+      <span class="codex-modal-cat" style="background:${col}20;color:${col};border:1px solid ${col}40">${cat ? cat.icon+' '+cat.zh : ''}</span>
+      <div class="codex-modal-zh">${item.zh}</div>
+      <div class="codex-modal-en">${item.en}</div>
+      ${item.alias ? `<div class="codex-modal-alias">別名 / Alias：${item.alias}</div>` : ''}
+    </div>
+    <div class="codex-modal-body">
+      <div class="codex-modal-section">
+        <div class="codex-modal-section-title">簡介 · Summary</div>
+        <p>${item.desc}</p>
+      </div>
+      ${item.detail ? `<div class="codex-modal-section">
+        <div class="codex-modal-section-title">詳細說明 · Full Detail</div>
+        <p>${item.detail}</p>
+      </div>` : ''}
+      ${evChips ? `<div class="codex-modal-section">
+        <div class="codex-modal-section-title">關聯事件 · Related Events</div>
+        <div class="codex-chip-row">${evChips}</div>
+      </div>` : ''}
+      ${personChips ? `<div class="codex-modal-section">
+        <div class="codex-modal-section-title">關聯人物 · Related Persons</div>
+        <div class="codex-chip-row">${personChips}</div>
+      </div>` : ''}
+    </div>`;
+
+  document.getElementById('codex-modal').classList.add('open');
+}
+
+function closeCodexModal() {
+  document.getElementById('codex-modal').classList.remove('open');
+}
+
+function filterCodex(cat, btn) {
+  codexFilter = cat;
+  document.querySelectorAll('#codex-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCodex();
+}
+
+function searchCodex(q) {
+  codexSearch = q;
+  renderCodex();
+}
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let tlFilter = 'all';
+let profileFilter = 'all';
+let profileSearch = '';
+let lastEventId = null;
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ═══════════════════════════════════════
+// TIMELINE
+// ═══════════════════════════════════════
+function renderTimeline() {
+  const c = document.getElementById('tl-container');
+  c.innerHTML = '';
+  let lastYear = '';
+  EVENTS.forEach(ev => {
+    const yp = ev.year;
+    if (yp !== lastYear) {
+      const m = document.createElement('div');
+      m.className = 'tl-year';
+      m.innerHTML = `<span>${ev.date.replace(/\.\d+$/,'')}</span>`;
+      c.appendChild(m);
+      lastYear = yp;
+    }
+    const d = document.createElement('div');
+    d.className = `tl-event ${ev.side}`;
+    d.dataset.cat = ev.cat;
+    d.dataset.id = ev.id;
+    if (tlFilter !== 'all' && ev.cat !== tlFilter) d.classList.add('hidden');
+
+    const impDots = [1,2,3,4,5].map(i =>
+      `<span class="imp-dot${i <= ev.importance ? ' on' : ''}"></span>`).join('');
+
+    const personTags = ev.persons.map(pid => {
+      const p = PERSONS.find(x => x.id === pid);
+      return p ? `<span class="tl-tag person-tag" onclick="openPersonModal('${pid}');event.stopPropagation()">${p.name}</span>` : '';
+    }).join('');
+
+    d.innerHTML = `
+      <div class="tl-card">
+        <div class="card-top">
+          <span class="cat-badge cat-${ev.cat}">${ev.catLabel}</span>
+          <div class="importance">${impDots}</div>
+        </div>
+        <div class="tl-year-label">${ev.year}</div>
+        <div class="tl-title">${ev.title}</div>
+        ${ev.titleEn ? `<div class="tl-title-en">${ev.titleEn}</div>` : ''}
+        <div class="tl-summary">${ev.summary}</div>
+        ${personTags ? `<div class="tl-meta">${personTags}</div>` : ''}
+        <button class="read-more-btn" onclick="openEvent('${ev.id}');event.stopPropagation()">
+          深度剖析 →
+        </button>
+      </div>`;
+    c.appendChild(d);
+  });
+}
+
+function goBackToTimeline() {
+  showPage('timeline', document.querySelectorAll('.nav-tab')[0]);
+  if (!lastEventId) return;
+  // 等頁面顯示（display:block）後才捲動
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const target = document.querySelector(`.tl-event[data-id="${lastEventId}"]`);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  });
+}
+
+function filterTL(cat, btn) {
+  tlFilter = cat;
+  document.querySelectorAll('#tl-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tl-event').forEach(el => {
+    el.classList.toggle('hidden', cat !== 'all' && el.dataset.cat !== cat);
+  });
+}
+
+// ═══════════════════════════════════════
+// EVENT DETAIL
+// ═══════════════════════════════════════
+function openEvent(id) {
+  const ev = EVENTS.find(e => e.id === id);
+  if (!ev) return;
+  lastEventId = id;
+
+  const d = ev.fullDetail;
+  const navBtns = document.querySelectorAll('.nav-tab');
+  showPage('event', navBtns[1]);
+
+  const personCards = ev.persons.map(pid => {
+    const p = PERSONS.find(x => x.id === pid);
+    if (!p) return '';
+    return `<div class="person-chip" onclick="openPersonModal('${pid}')">
+      <div class="pc-avatar">${p.avatar}</div>
+      <div><div class="pc-name">${p.name}</div><div class="pc-role">${p.role.split('・')[0]}</div></div>
+    </div>`;
+  }).join('');
+
+  const relChips = ev.relEvents.map(rid => {
+    const r = EVENTS.find(e => e.id === rid);
+    return r ? `<span class="rel-event-chip" onclick="openEvent('${rid}')">${r.title}</span>` : '';
+  }).join('');
+
+  const timelineHTML = d.timeline.map(t => `<li>${t}</li>`).join('');
+  const factHTML = d.factCheck ?
+    `<div class="fact-box fact-${d.factCheck.type}">
+      <span class="fact-label">${d.factCheck.type === 'verified' ? '✅ 可核實' : d.factCheck.type === 'partial' ? '⚠️ 部分屬實' : '❌ 無法核實'}</span>
+      ${d.factCheck.text}
+    </div>` : '';
+
+  document.getElementById('event-detail-content').innerHTML = `
+    <button class="back-btn" onclick="goBackToTimeline()">← 返回時間軸</button>
+    <div class="ev-hero">
+      <div class="ev-badge-row">
+        <span class="cat-badge cat-${ev.cat}">${ev.catLabel}</span>
+        <span class="ev-year-big">${ev.year}</span>
+      </div>
+      <div class="ev-title-big">${ev.title}</div>
+      ${ev.titleEn ? `<div class="ev-title-en">${ev.titleEn}</div>` : ''}
+      <div class="ev-summary-big">${ev.summary}</div>
+    </div>
+
+    <div class="ev-grid">
+      <div class="ev-section full">
+        <div class="ev-section-title">完整時間線</div>
+        <ul>${timelineHTML}</ul>
+      </div>
+
+      ${d.background ? `<div class="ev-section">
+        <div class="ev-section-title">背景脈絡</div>
+        <p>${d.background}</p>
+      </div>` : ''}
+
+      ${d.impact ? `<div class="ev-section">
+        <div class="ev-section-title">後續影響</div>
+        <p>${d.impact}</p>
+      </div>` : ''}
+
+      ${d.analysis ? `<div class="ev-section">
+        <div class="ev-section-title">深度分析</div>
+        <p>${d.analysis}</p>
+      </div>` : ''}
+
+      ${factHTML ? `<div class="ev-section">
+        <div class="ev-section-title">可核實程度</div>
+        ${factHTML}
+      </div>` : ''}
+
+      ${personCards ? `<div class="ev-section full">
+        <div class="ev-section-title">涉及人物</div>
+        <div class="persons-grid">${personCards}</div>
+      </div>` : ''}
+
+      ${relChips ? `<div class="ev-section full">
+        <div class="ev-section-title">關聯事件</div>
+        <div class="rel-events">${relChips}</div>
+      </div>` : ''}
+
+      <div class="ev-section full">
+        <div class="ev-section-title">專業名詞對照 · Glossary</div>
+        <div class="glossary-grid">${buildGlossary(ev.id)}</div>
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════
+// PROFILES
+// ═══════════════════════════════════════
+function renderProfiles() {
+  const grid = document.getElementById('profiles-grid');
+  let list = PERSONS.filter(p => {
+    const catMatch = profileFilter === 'all' || p.cat === profileFilter;
+    const searchMatch = !profileSearch || [p.name, p.nameEn, p.role, p.bio].join(' ').toLowerCase().includes(profileSearch.toLowerCase());
+    return catMatch && searchMatch;
+  });
+
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty-msg">沒有符合條件的人物</div>';
+    return;
+  }
+
+  grid.innerHTML = list.map(p => {
+    const evCount = p.events.length;
+    const evTags = p.events.slice(0,3).map(eid => {
+      const ev = EVENTS.find(e => e.id === eid);
+      return ev ? `<span class="profile-event-tag" onclick="openEvent('${eid}');event.stopPropagation()">${ev.title.slice(0,18)}…</span>` : '';
+    }).join('');
+    return `
+      <div class="profile-card" onclick="openPersonModal('${p.id}')">
+        <div class="profile-header">
+          <div class="profile-avatar">${p.avatar}</div>
+          <div class="profile-name">${p.name}</div>
+          ${p.nameEn && p.nameEn !== p.name ? `<div class="profile-name-en">${p.nameEn}</div>` : ''}
+          <div class="profile-role">${p.role.split('・')[0]}</div>
+          <div class="profile-dates">${p.born || '出生年份不詳'} ${p.died ? '— ' + p.died : ''}</div>
+        </div>
+        <div class="profile-body">
+          <div class="profile-bio">${p.bio.slice(0,120)}…</div>
+          <div class="profile-events">${evTags}</div>
+          <div class="profile-stat">
+            <div class="p-stat"><span class="p-stat-num">${evCount}</span><span class="p-stat-label">關聯事件</span></div>
+            <div class="p-stat"><span class="p-stat-num">${p.relPersons.length}</span><span class="p-stat-label">關係人物</span></div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function filterProfiles(cat, btn) {
+  profileFilter = cat;
+  document.querySelectorAll('.filter-bar .filter-btn').forEach(b => {
+    if (b.closest('#page-profiles')) b.classList.remove('active');
+  });
+  btn.classList.add('active');
+  renderProfiles();
+}
+
+function searchProfiles(q) {
+  profileSearch = q;
+  renderProfiles();
+}
+
+// ═══════════════════════════════════════
+// PROFILE MODAL
+// ═══════════════════════════════════════
+function openPersonModal(id) {
+  const p = PERSONS.find(x => x.id === id);
+  if (!p) return;
+
+  const evCards = p.events.map(eid => {
+    const ev = EVENTS.find(e => e.id === eid);
+    return ev ? `<span class="modal-ev-tag" onclick="openEvent('${eid}');closeModalBtn()">${ev.title}</span>` : '';
+  }).join('');
+
+  const relCards = p.relPersons.map(rid => {
+    const r = PERSONS.find(x => x.id === rid);
+    return r ? `<span class="modal-ev-tag" onclick="openPersonModal('${rid}')">${r.name}</span>` : '';
+  }).join('');
+
+  document.getElementById('modal-content').innerHTML = `
+    <div class="modal-header">
+      <div class="modal-avatar">${p.avatar}</div>
+      <div class="modal-name">${p.name}</div>
+      ${p.nameEn && p.nameEn !== p.name ? `<div class="modal-name-en">${p.nameEn}</div>` : ''}
+      <div class="modal-role">${p.role}</div>
+      <div class="modal-dates">${p.nationality || ''} ${p.born ? '· 生於 ' + p.born : ''} ${p.died ? '· ' + p.died : ''}</div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <div class="modal-section-title">個人簡介</div>
+        <p>${p.bio}</p>
+      </div>
+      ${p.notes ? `<div class="modal-section">
+        <div class="modal-section-title">備註</div>
+        <p>${p.notes}</p>
+      </div>` : ''}
+      ${evCards ? `<div class="modal-section">
+        <div class="modal-section-title">關聯事件（${p.events.length}）</div>
+        <div class="modal-events-list">${evCards}</div>
+      </div>` : ''}
+      ${relCards ? `<div class="modal-section">
+        <div class="modal-section-title">關係人物</div>
+        <div class="modal-events-list">${relCards}</div>
+      </div>` : ''}
+    </div>`;
+
+  document.getElementById('profile-modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('profile-modal')) closeModalBtn();
+}
+
+function closeModalBtn() {
+  document.getElementById('profile-modal').classList.remove('open');
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+renderTimeline();
+renderProfiles();
+renderCodex();
+renderCodex();
+</script>
+</body>
+</html>
